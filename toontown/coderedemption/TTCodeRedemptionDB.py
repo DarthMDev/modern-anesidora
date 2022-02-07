@@ -113,7 +113,7 @@ class TTCRDBConnection(DBInterface):
         self._host = connectInfo.host
         self._port = connectInfo.port
         self._user = connectInfo.user
-        self._passwd = connectInfo.passwd
+        self._password = connectInfo.password
         self._tableLocks = tableLocks
         self._dbName = connectInfo.dbname
         self._retryDoLater = None
@@ -174,7 +174,7 @@ class TTCRDBConnection(DBInterface):
                 self.__class__.db = DirectMySQLdb.connect(host=self._host,
                                                           port=self._port,
                                                           user=self._user,
-                                                          passwd=self._passwd)
+                                                          password=self._password)
             except MySQLdb.OperationalError as e:
                 """
                 self.notify.warning("Failed to connect to MySQL at %s:%d. Retrying in %s seconds."%(
@@ -821,12 +821,12 @@ class TTCodeRedemptionDB(DBInterface, DirectObject):
         Redeemed = 'redeemed'
         Expired = 'expired'
 
-    def __init__(self,air,host,port,user,passwd,dbname):
+    def __init__(self,air,host,port,user,password,dbname):
         self.air = air
         self.host = host
         self.port = port
         self.user = user
-        self.passwd = passwd
+        self.password = password
         self.dbname = self.processDBName(dbname)
 
         # lot name cache

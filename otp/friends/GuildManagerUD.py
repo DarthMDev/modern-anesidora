@@ -46,7 +46,7 @@ class GuildManagerUD(DistributedObjectGlobalUD):
         self.debugAvId = 0
         
         self.DBuser = uber.config.GetString("mysql-user","ud_rw")
-        self.DBpasswd = uber.config.GetString("mysql-passwd","r3adwr1te")
+        self.DBpassword = uber.config.GetString("mysql-password","r3adwr1te")
 
         self.DBhost = uber.config.GetString("guild-db-host","localhost")
         self.DBport = uber.config.GetInt("guild-db-port",3306)
@@ -56,7 +56,7 @@ class GuildManagerUD(DistributedObjectGlobalUD):
         self.db = GuildDB(host=self.DBhost,
                           port=self.DBport,
                           user=self.DBuser,
-                          passwd=self.DBpasswd,
+                          password=self.DBpassword,
                           dbname=self.DBname)
 
         self.asyncRequests = {}

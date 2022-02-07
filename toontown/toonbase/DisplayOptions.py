@@ -4,7 +4,7 @@ import os
 import sys
 import datetime
 from panda3d.core import loadPrcFileData, WindowProperties
-from libotp import Settings 
+from libotp import*
 from otp.otpgui import OTPDialog
 from otp.otpbase import OTPGlobals
 from otp.otpbase import OTPRender
@@ -217,7 +217,7 @@ class DisplayOptions:
             # we should keep it up-to-date with the new MouseWatcher
             # etc.
             if 'libotp' in sys.modules:
-                from libotp import NametagGlobals
+                from panda3d.otp import NametagGlobals
                 NametagGlobals.setCamera(base.cam)
                 NametagGlobals.setMouseWatcher(base.mouseWatcherNode)
 

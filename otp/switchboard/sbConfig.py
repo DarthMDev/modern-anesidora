@@ -15,7 +15,7 @@ logMaxLinesInMemory = 100
 mailDBhost = "localhost"
 mailDBport = 3306
 mailDBuser = "switchboard_user"
-mailDBpasswd = "0bhctiws"
+mailDBpassword = "0bhctiws"
 mailDBdb = "switchboard"
 
 scrubMessages = False
@@ -23,7 +23,7 @@ scrubMessages = False
 lastSeenDBhost = "localhost"
 lastSeenDBport = 3306
 lastSeenDBuser = "switchboard_user"
-lastSeenDBpasswd = "0bhctiws"
+lastSeenDBpassword = "0bhctiws"
 lastSeenDBdb = "switchboard"
 
 

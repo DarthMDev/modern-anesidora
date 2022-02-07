@@ -115,7 +115,7 @@ class TTCodeRedemptionMgrUD(DistributedObjectGlobalUD):
        # self.webDispatcher.listenOnPort(self.HTTPListenPort)
 
         self.DBuser = uber.config.GetString("mysql-user", PartiesUdConfig.ttDbUser)
-        self.DBpasswd = uber.config.GetString("mysql-passwd", PartiesUdConfig.ttDbPasswd)
+        self.DBpassword = uber.config.GetString("mysql-password", PartiesUdConfig.ttDbpassword)
 
         self.DBhost = uber.config.GetString("tt-code-db-host", uber.mysqlhost)
         self.DBport = uber.config.GetInt("tt-code-db-port", PartiesUdConfig.ttDbPort)
@@ -127,7 +127,7 @@ class TTCodeRedemptionMgrUD(DistributedObjectGlobalUD):
         self._redeemContextGen = SerialNumGen()
         self._redeemContext2session = {}
 
-        self._db = TTCodeRedemptionDB(self.air, self.DBhost, self.DBport, self.DBuser, self.DBpasswd, self.DBname)
+        self._db = TTCodeRedemptionDB(self.air, self.DBhost, self.DBport, self.DBuser, self.DBpassword, self.DBname)
 
         if __debug__:
             self._db.runTests()

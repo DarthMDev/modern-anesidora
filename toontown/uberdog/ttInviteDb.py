@@ -18,19 +18,19 @@ class ttInviteDb:
 
     notify = DirectNotifyGlobal.directNotify.newCategory("ttInviteDb")
     
-    def __init__(self,host,port,user,passwd,db):
+    def __init__(self,host,port,user,password,db):
         self.sqlAvailable = True
         self.host = host
         self.port = port
         self.user = user
-        self.passwd = passwd
+        self.password = password
         self.dbname = db
 
         try:
             self.db = MySQLdb.connect(host=host,
                                       port=port,
                                       user=user,
-                                      passwd=passwd,
+                                      password=password,
                                       )
         except MySQLdb.OperationalError as e:
             self.notify.warning("Failed to connect to MySQL db=%s at %s:%d.  ttInvitedb DB is disabled."%(db,host,port))
@@ -125,7 +125,7 @@ class ttInviteDb:
         self.db = MySQLdb.connect(host=self.host,
                                   port=self.port,
                                   user=self.user,
-                                  passwd=self.passwd)
+                                  password=self.password)
         cursor = self.db.cursor()
         cursor.execute("USE `%s`"%self.dbname)
         self.notify.debug("Reconnected to MySQL server at %s:%d."%(self.host,self.port))

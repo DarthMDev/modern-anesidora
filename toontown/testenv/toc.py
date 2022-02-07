@@ -28,9 +28,9 @@ class TOCDisconnectError(Exception):
         pass
 
 class TocTalk:
-        def __init__(self,nick,passwd):
+        def __init__(self,nick,password):
                         self._nick = nick
-                        self._passwd = passwd
+                        self._password = password
                         self._agent = "PY-TOC"
                         self._info = "I'm running the Python TOC Module by Jamie Turner <jamwt@jamwt.com>"
                         self._seq = random.randint(0,65535)
@@ -131,7 +131,7 @@ class TocTalk:
                 ept = []
 
                 x = 0
-                for letter in self._passwd:
+                for letter in self._password:
                         ept.append("%02x" % ( ord(letter) ^ ord( lookup[x % 7]) ) )
                         x = x + 1
                 return "0x" + "".join(ept)

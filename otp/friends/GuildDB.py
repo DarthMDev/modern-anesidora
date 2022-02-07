@@ -33,7 +33,7 @@ class GuildDB(DBInterface):
     """
     notify = directNotify.newCategory('GuildDB')
         
-    def __init__(self,host,port,user,passwd,dbname):
+    def __init__(self,host,port,user,password,dbname):
         self.sqlAvailable = uber.sqlAvailable
         if not self.sqlAvailable:
             return
@@ -66,7 +66,7 @@ class GuildDB(DBInterface):
         self.host = host
         self.port = port
         self.user = user
-        self.passwd = passwd
+        self.password = password
         self.dbname = self.processDBName(dbname)
 
         if __debug__:
@@ -74,7 +74,7 @@ class GuildDB(DBInterface):
         self.db = MySQLdb.connect(host=host,
                                   port=port,
                                   user=user,
-                                  passwd=passwd)
+                                  password=password)
 
         if __debug__:
             self.notify.info("Connected to %s MySQL db at %s:%d." % (self.dbname, host, port))
@@ -134,7 +134,7 @@ class GuildDB(DBInterface):
         self.db = MySQLdb.connect(host=self.host,
                                   port=self.port,
                                   user=self.user,
-                                  passwd=self.passwd)
+                                  password=self.password)
         cursor = self.db.cursor()
         cursor.execute("USE `%s`"%self.dbname)
         if __debug__:

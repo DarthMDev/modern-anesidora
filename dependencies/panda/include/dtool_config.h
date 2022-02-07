@@ -13,9 +13,21 @@
 #define HAVE_ARTOOLKIT 1
 #define HAVE_AUDIO 1
 #define HAVE_BMP 1
+#ifdef __aarch64__
+#undef HAVE_CG
+#else
 #define HAVE_CG 1
+#endif
+#ifdef __aarch64__
+#undef HAVE_CGDX9
+#else
 #define HAVE_CGDX9 1
+#endif
+#ifdef __aarch64__
+#undef HAVE_CGGL
+#else
 #define HAVE_CGGL 1
+#endif
 #undef HAVE_COCOA
 #undef HAVE_DINKUM
 #undef HAVE_DIRECTCAM
@@ -26,7 +38,6 @@
 #undef HAVE_GETOPT
 #undef HAVE_GETOPT_LONG_ONLY
 #define HAVE_GLOBAL_ARGV 1
-#undef HAVE_GLX
 #define HAVE_IMG 1
 #define HAVE_IOS_BINARY 1
 #define HAVE_IOS_TYPEDEFS 1

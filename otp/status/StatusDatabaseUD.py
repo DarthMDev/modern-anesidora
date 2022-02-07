@@ -24,7 +24,7 @@ class StatusDatabaseUD(DistributedObjectGlobalUD,DBInterface):
         self.avatarId2LastOnline = {}
 
         self.DBuser = uber.config.GetString("mysql-user", "ud_rw")
-        self.DBpasswd = uber.config.GetString("mysql-passwd", "r3adwr1te")
+        self.DBpassword = uber.config.GetString("mysql-password", "r3adwr1te")
 
         self.DBhost = "localhost"
         self.DBport = 3306
@@ -33,7 +33,7 @@ class StatusDatabaseUD(DistributedObjectGlobalUD,DBInterface):
         self.db = MySQLdb.connect(host=self.DBhost,
                                   port=self.DBport,
                                   user=self.DBuser,
-                                  passwd=self.DBpasswd)
+                                  password=self.DBpassword)
 
         self.notify.info("Connected to MySQL server at %s:%d."%(self.DBhost,self.DBport))
 

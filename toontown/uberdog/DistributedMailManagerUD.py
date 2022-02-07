@@ -16,15 +16,15 @@ class DistributedMailManagerUD(DistributedObjectGlobalUD):
     def __init__(self, air):
         DistributedObjectGlobalUD.__init__(self, air)
         user = uber.config.GetString("mysql-user", '')
-        passwd = uber.config.GetString("mysql-passwd",'')
+        password = uber.config.GetString("mysql-password",'')
         if not user:
             user = PartiesUdConfig.ttDbUser
-        if not passwd:
-            passwd = PartiesUdConfig.ttDbPasswd        
+        if not password:
+            password = PartiesUdConfig.ttDbpassword        
         self.mailDB = ttMaildb(host=PartiesUdConfig.ttDbHost,
                                port=PartiesUdConfig.ttDbPort,
                                user = user,
-                               passwd = passwd,                               
+                               password = password,                               
                                db=PartiesUdConfig.ttDbName)
         
     def announceGenerate(self):

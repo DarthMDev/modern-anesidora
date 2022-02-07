@@ -1,2 +1,2 @@
 mysql-user ud_user
-mysql-passwd ytr8QRMJ
+mysql-password ytr8QRMJ

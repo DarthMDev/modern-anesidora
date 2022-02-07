@@ -15,19 +15,19 @@ SERVER_GONE_ERROR = MySQLdb.constants.CR.SERVER_GONE_ERROR
 SERVER_LOST = MySQLdb.constants.CR.SERVER_LOST
 
 class sbMaildb:
-    def __init__(self,log,host,port,user,passwd,db):
+    def __init__(self,log,host,port,user,password,db):
         self.sqlAvailable = True
         self.log = log
         self.host = host
         self.port = port
         self.user = user
-        self.passwd = passwd
+        self.password = password
         self.dbname = db
         try:
             self.db = MySQLdb.connect(host=host,
                                       port=port,
                                       user=user,
-                                      passwd=passwd,
+                                      password=password,
                                       db=db)
         except MySQLdb.OperationalError as e:
             self.log.warning("Failed to connect to MySQL at %s:%d.  sbMaildb is disabled."%(host,port))
@@ -52,7 +52,7 @@ class sbMaildb:
         self.db = MySQLdb.connect(host=self.host,
                                   port=self.port,
                                   user=self.user,
-                                  passwd=self.passwd)
+                                  password=self.password)
         cursor = self.db.cursor()
         cursor.execute("USE `%s`"%self.dbname)
         self.log.debug("Reconnected to MySQL server at %s:%d."%(self.host,self.port))

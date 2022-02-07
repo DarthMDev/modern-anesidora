@@ -13,7 +13,7 @@ from otp.uberdog.DBInterface import DBInterface
 from toontown.coderedemption import TTCodeRedemptionConsts
 
 username = config.GetString("mysql-user")
-password = config.GetString("mysql-passwd")
+password = config.GetString("mysql-password")
 
 if username == "" or password == "":
     print("Username or password not found, check your config.prc!")
@@ -23,7 +23,7 @@ if username == "" or password == "":
 db = MySQLdb.connect(host="localhost",
                      port=3306,
                      user=username,
-                     passwd=password)
+                     password=password)
 
 print("Connected to MySQL at localhost.")
 

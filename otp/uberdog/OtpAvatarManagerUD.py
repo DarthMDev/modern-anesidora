@@ -119,7 +119,7 @@ class OtpAvatarManagerUD(DistributedObjectGlobalUD):
         DistributedObjectGlobalUD.__init__(self, air)
 
         self.DBuser = uber.config.GetString("mysql-user", "ud_rw")
-        self.DBpasswd = uber.config.GetString("mysql-passwd", "r3adwr1te")
+        self.DBpassword = uber.config.GetString("mysql-password", "r3adwr1te")
 
         self.DBhost = uber.config.GetString("accountavatars-db-host", "localhost")
         self.DBport = uber.config.GetInt("accountavatars-db-port", 3306)
@@ -128,7 +128,7 @@ class OtpAvatarManagerUD(DistributedObjectGlobalUD):
         self.db = MySQLAccountAvatarsDB.MySQLAccountAvatarsDB(host = self.DBhost,
                                                               port = self.DBport,
                                                               user = self.DBuser,
-                                                              passwd = self.DBpasswd,
+                                                              password = self.DBpassword,
                                                               dbname = self.DBname)
 
 

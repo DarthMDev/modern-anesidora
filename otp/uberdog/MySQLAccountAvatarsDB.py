@@ -10,7 +10,7 @@ notify = directNotify.newCategory('SubscriptionToAvatars')
 class MySQLAccountAvatarsDB(DBInterface):
     notify = notify
         
-    def __init__(self, host, port, user, passwd, dbname):
+    def __init__(self, host, port, user, password, dbname):
         #self.sqlAvailable = uber.sqlAvailable
         #if not self.sqlAvailable:
         #    self.notify.warning("SQL not available")
@@ -19,7 +19,7 @@ class MySQLAccountAvatarsDB(DBInterface):
         self.host = host
         self.port = port
         self.user = user
-        self.passwd = passwd
+        self.password = password
         self.dbname = self.processDBName(dbname)
 
         if __debug__:
@@ -107,7 +107,7 @@ class MySQLAccountAvatarsDB(DBInterface):
         self.db = MySQLdb.connect(host=self.host,
                                   port=self.port,
                                   user=self.user,
-                                  passwd=self.passwd)
+                                  password=self.password)
         # Enable autocommit mode (all explicit calls to commit have been
         # deleted - see NOTES, ISSUE, and RESOLUTION above)
         self.db.autocommit(True)

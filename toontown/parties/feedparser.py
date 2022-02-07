@@ -1782,10 +1782,10 @@ def _open_resource(url_file_stream_or_string, etag, modified, agent, referrer, h
             urltype, rest = urllib.parse.splittype(url_file_stream_or_string)
             realhost, rest = urllib.parse.splithost(rest)
             if realhost:
-                user_passwd, realhost = urllib.parse.splituser(realhost)
-                if user_passwd:
+                user_password, realhost = urllib.parse.splituser(realhost)
+                if user_password:
                     url_file_stream_or_string = '%s://%s%s' % (urltype, realhost, rest)
-                    auth = base64.encodestring(user_passwd).strip()
+                    auth = base64.encodestring(user_password).strip()
         # try to open with urllib2 (to use optional headers)
         request = urllib.request.Request(url_file_stream_or_string)
         request.add_header('User-Agent', agent)

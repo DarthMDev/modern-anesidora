@@ -3,7 +3,7 @@ from direct.task.Task import Task
 from panda3d.core import *
 from otp.ai import BanManagerAI
 
-from libpandadna import *
+from panda3d.toontown import *
 from otp.ai.AIZoneData import AIZoneDataStore
 from otp.ai.TimeManagerAI import TimeManagerAI
 from otp.distributed.OtpDoGlobals import *
@@ -62,7 +62,7 @@ from toontown.coderedemption.TTCodeRedemptionMgrAI import TTCodeRedemptionMgrAI
 import time
 from direct.distributed.PyDatagram import PyDatagram
 from toontown.ai.ToontownAIMsgTypes import *
-from libpandadna import *
+from panda3d.toontown import *
 from toontown.fishing import FishManagerAI
 from otp.friends.FriendManagerAI import FriendManagerAI
 class ToontownAIRepository(ToontownInternalRepository):

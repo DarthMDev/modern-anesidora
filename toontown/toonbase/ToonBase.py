@@ -16,7 +16,7 @@ from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.launcher import ToontownDownloadWatcher
 
-from libotp import *
+from libotp import  Settings
 class ToonBase(OTPBase.OTPBase):
     """ToonBase class"""
 

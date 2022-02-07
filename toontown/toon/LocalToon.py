@@ -60,8 +60,8 @@ from . import Toon
 from . import LaffMeter
 
 from libotp.settings.Settings import Settings
-from libotp import CFThought, CFTimeout
-from libotp import WhisperPopup
+from panda3d.otp import CFThought, CFTimeout
+from panda3d.otp import WhisperPopup
 from toontown.quest import QuestMap
 
 # Checks whether we want to display the news page

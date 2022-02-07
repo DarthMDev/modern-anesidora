@@ -15,7 +15,7 @@ class AvatarFriendsDB(DBInterface):
     """
     notify = directNotify.newCategory('AvatarFriendsDB')
         
-    def __init__(self,host,port,user,passwd,dbname):
+    def __init__(self,host,port,user,password,dbname):
         self.sqlAvailable = True 
         if not self.sqlAvailable:
             return
@@ -23,13 +23,13 @@ class AvatarFriendsDB(DBInterface):
         self.host = host
         self.port = port
         self.user = user
-        self.passwd = passwd
+        self.password = password
         self.dbname = self.processDBName(dbname)
         try:
             self.db = MySQLdb.connect(host=host,
                                       port=port,
                                       user=user,
-                                      passwd=passwd)
+                                      password=password)
         except MySQLdb.OperationalError as e:
             if __debug__:
                 self.notify.warning("Failed to connect to MySQL at %s:%d.  Avatar friends DB is disabled."%(host,port))
@@ -77,7 +77,7 @@ class AvatarFriendsDB(DBInterface):
         self.db = MySQLdb.connect(host=self.host,
                                   port=self.port,
                                   user=self.user,
-                                  passwd=self.passwd)
+                                  password=self.password)
         cursor = self.db.cursor()
         cursor.execute("USE `%s`"%self.dbname)
         if __debug__:

@@ -6,7 +6,7 @@ Example:
 
 >>> from ftplib import FTP
 >>> ftp = FTP('ftp.python.org') # connect to host, default port
->>> ftp.login() # default, i.e.: user anonymous, passwd anonymous@
+>>> ftp.login() # default, i.e.: user anonymous, password anonymous@
 '230 Guest login ok, access restrictions apply.'
 >>> ftp.retrlines('LIST') # list directory contents
 total 9
@@ -72,17 +72,17 @@ B_CRLF = b'\r\n'
 
 # The class itself
 class FTP:
-
     '''An FTP client class.
 
     To create a connection, call the class using these arguments:
-            host, user, passwd, acct, timeout
+            host, user, password, acct, timeout, source_address, encoding
 
     The first four arguments are all strings, and have default value ''.
-    timeout must be numeric and defaults to None if not passed,
-    meaning that no timeout will be set on any ftp socket(s)
+    The parameter ´timeout´ must be numeric and defaults to None if not
+    passed, meaning that no timeout will be set on any ftp socket(s).
     If a timeout is passed, then this is now the default timeout for all ftp
     socket operations for this instance.
+    The last parameter is the encoding of filenames, which defaults to utf-8.
 
     Then use self.connect() with optional host and port argument.
 
@@ -102,21 +102,25 @@ class FTP:
     sock = None
     file = None
     welcome = None
-    passiveserver = 1
-    encoding = "latin-1"
+    passiveserver = True
+    # Disables https://bugs.python.org/issue43285 security if set to True.
+    trust_server_pasv_ipv4_address = False
 
-    # Initialization method (called by class instantiation).
-    # Initialize host to localhost, port to standard ftp port
-    # Optional arguments are host (for connect()),
-    # and user, passwd, acct (for login())
-    def __init__(self, host='', user='', passwd='', acct='',
-                 timeout=_GLOBAL_DEFAULT_TIMEOUT, source_address=None):
+    def __init__(self, host='', user='', password='', acct='',
+                 timeout=_GLOBAL_DEFAULT_TIMEOUT, source_address=None, *,
+                 encoding='utf-8'):
+        """Initialization method (called by class instantiation).
+        Initialize host to localhost, port to standard ftp port.
+        Optional arguments are host (for connect()),
+        and user, password, acct (for login()).
+        """
+        self.encoding = encoding
         self.source_address = source_address
         self.timeout = timeout
         if host:
             self.connect(host)
             if user:
-                self.login(user, passwd, acct)
+                self.login(user, password, acct)
 
     def __enter__(self):
         return self
@@ -146,6 +150,8 @@ class FTP:
             self.port = port
         if timeout != -999:
             self.timeout = timeout
+        if self.timeout is not None and not self.timeout:
+            raise ValueError('Non-blocking socket (timeout=0) is not supported')
         if source_address is not None:
             self.source_address = source_address
         sys.audit("ftplib.connect", self, self.host, self.port)
@@ -316,8 +322,13 @@ class FTP:
         return sock
 
     def makepasv(self):
+        """Internal: Does the PASV or EPSV handshake -> (address, port)"""
         if self.af == socket.AF_INET:
-            host, port = parse227(self.sendcmd('PASV'))
+            untrusted_host, port = parse227(self.sendcmd('PASV'))
+            if self.trust_server_pasv_ipv4_address:
+                host = untrusted_host
+            else:
+                host = self.sock.getpeername()[0]
         else:
             host, port = parse229(self.sendcmd('EPSV'), self.sock.getpeername())
         return host, port
@@ -381,15 +392,15 @@ class FTP:
         """Like ntransfercmd() but returns only the socket."""
         return self.ntransfercmd(cmd, rest)[0]
 
-    def login(self, user = '', passwd = '', acct = ''):
+    def login(self, user = '', password = '', acct = ''):
         '''Login, default anonymous.'''
         if not user:
             user = 'anonymous'
-        if not passwd:
-            passwd = ''
+        if not password:
+            password = ''
         if not acct:
             acct = ''
-        if user == 'anonymous' and passwd in {'', '-'}:
+        if user == 'anonymous' and password in {'', '-'}:
             # If there is no anonymous ftp password specified
             # then we'll just use anonymous@
             # We don't send any other thing because:
@@ -397,10 +408,10 @@ class FTP:
             # - We want to stop SPAM
             # - We don't want to let ftp sites to discriminate by the user,
             #   host or country.
-            passwd = passwd + 'anonymous@'
+            password = password + 'anonymous@'
         resp = self.sendcmd('USER ' + user)
         if resp[0] == '3':
-            resp = self.sendcmd('PASS ' + passwd)
+            resp = self.sendcmd('PASS ' + password)
         if resp[0] == '3':
             resp = self.sendcmd('ACCT ' + acct)
         if resp[0] != '2':
@@ -704,9 +715,10 @@ else:
         '''
         ssl_version = ssl.PROTOCOL_TLS_CLIENT
 
-        def __init__(self, host='', user='', passwd='', acct='', keyfile=None,
-                     certfile=None, context=None,
-                     timeout=_GLOBAL_DEFAULT_TIMEOUT, source_address=None):
+        def __init__(self, host='', user='', password='', acct='',
+                     keyfile=None, certfile=None, context=None,
+                     timeout=_GLOBAL_DEFAULT_TIMEOUT, source_address=None, *,
+                     encoding='utf-8'):
             if context is not None and keyfile is not None:
                 raise ValueError("context and keyfile arguments are mutually "
                                  "exclusive")
@@ -725,12 +737,13 @@ else:
                                                      keyfile=keyfile)
             self.context = context
             self._prot_p = False
-            FTP.__init__(self, host, user, passwd, acct, timeout, source_address)
+            super().__init__(host, user, password, acct,
+                             timeout, source_address, encoding=encoding)
 
-        def login(self, user='', passwd='', acct='', secure=True):
+        def login(self, user='', password='', acct='', secure=True):
             if secure and not isinstance(self.sock, ssl.SSLSocket):
                 self.auth()
-            return FTP.login(self, user, passwd, acct)
+            return super().login(user, password, acct)
 
         def auth(self):
             '''Set up secure control connection by using TLS/SSL.'''
@@ -740,8 +753,7 @@ else:
                 resp = self.voidcmd('AUTH TLS')
             else:
                 resp = self.voidcmd('AUTH SSL')
-            self.sock = self.context.wrap_socket(self.sock,
-                                                 server_hostname=self.host)
+            self.sock = self.context.wrap_socket(self.sock, server_hostname=self.host)
             self.file = self.sock.makefile(mode='r', encoding=self.encoding)
             return resp
 
@@ -778,7 +790,7 @@ else:
         # --- Overridden FTP methods
 
         def ntransfercmd(self, cmd, rest=None):
-            conn, size = FTP.ntransfercmd(self, cmd, rest)
+            conn, size = super().ntransfercmd(cmd, rest)
             if self._prot_p:
                 conn = self.context.wrap_socket(conn,
                                                 server_hostname=self.host)
@@ -823,7 +835,6 @@ def parse227(resp):
     '''Parse the '227' response for a PASV request.
     Raises error_proto if it does not contain '(h1,h2,h3,h4,p1,p2)'
     Return ('host.addr.as.numbers', port#) tuple.'''
-
     if resp[:3] != '227':
         raise error_reply(resp)
     global _227_re
@@ -843,7 +854,6 @@ def parse229(resp, peer):
     '''Parse the '229' response for an EPSV request.
     Raises error_proto if it does not contain '(|||port|)'
     Return ('host.addr.as.numbers', port#) tuple.'''
-
     if resp[:3] != '229':
         raise error_reply(resp)
     left = resp.find('(')
@@ -865,7 +875,6 @@ def parse257(resp):
     '''Parse the '257' response for a MKD or PWD request.
     This is a response to a MKD or PWD request: a directory name.
     Returns the directoryname in the 257 reply.'''
-
     if resp[:3] != '257':
         raise error_reply(resp)
     if resp[3:5] != ' "':
@@ -938,7 +947,7 @@ def test():
     host = sys.argv[1]
     ftp = FTP(host)
     ftp.set_debuglevel(debugging)
-    userid = passwd = acct = ''
+    userid = password = acct = ''
     try:
         netrcobj = netrc.netrc(rcfile)
     except OSError:
@@ -947,12 +956,12 @@ def test():
                              " -- using anonymous login.")
     else:
         try:
-            userid, acct, passwd = netrcobj.authenticators(host)
+            userid, acct, password = netrcobj.authenticators(host)
         except KeyError:
             # no account for host
             sys.stderr.write(
                     "No account -- using anonymous login.")
-    ftp.login(userid, passwd, acct)
+    ftp.login(userid, password, acct)
     for file in sys.argv[2:]:
         if file[:2] == '-l':
             ftp.dir(file[2:])

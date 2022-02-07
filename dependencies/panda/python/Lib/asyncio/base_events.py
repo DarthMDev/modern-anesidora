@@ -350,7 +350,7 @@ class Server(events.AbstractServer):
         self._start_serving()
         # Skip one loop iteration so that all 'loop.add_reader'
         # go through.
-        await tasks.sleep(0, loop=self._loop)
+        await tasks.sleep(0)
 
     async def serve_forever(self):
         if self._serving_forever_fut is not None:
@@ -410,6 +410,8 @@ class BaseEventLoop(events.AbstractEventLoop):
         self._asyncgens = weakref.WeakSet()
         # Set to True when `loop.shutdown_asyncgens` is called.
         self._asyncgens_shutdown_called = False
+        # Set to True when `loop.shutdown_default_executor` is called.
+        self._executor_shutdown_called = False
 
     def __repr__(self):
         return (
@@ -507,6 +509,10 @@ class BaseEventLoop(events.AbstractEventLoop):
         if self._closed:
             raise RuntimeError('Event loop is closed')
 
+    def _check_default_executor(self):
+        if self._executor_shutdown_called:
+            raise RuntimeError('Executor shutdown has been called')
+
     def _asyncgen_finalizer_hook(self, agen):
         self._asyncgens.discard(agen)
         if not self.is_closed():
@@ -533,7 +539,7 @@ class BaseEventLoop(events.AbstractEventLoop):
         closing_agens = list(self._asyncgens)
         self._asyncgens.clear()
 
-        results = await tasks.gather(
+        results = await tasks._gather(
             *[ag.aclose() for ag in closing_agens],
             return_exceptions=True,
             loop=self)
@@ -546,6 +552,26 @@ class BaseEventLoop(events.AbstractEventLoop):
                     'exception': result,
                     'asyncgen': agen
                 })
+
+    async def shutdown_default_executor(self):
+        """Schedule the shutdown of the default executor."""
+        self._executor_shutdown_called = True
+        if self._default_executor is None:
+            return
+        future = self.create_future()
+        thread = threading.Thread(target=self._do_shutdown, args=(future,))
+        thread.start()
+        try:
+            await future
+        finally:
+            thread.join()
+
+    def _do_shutdown(self, future):
+        try:
+            self._default_executor.shutdown(wait=True)
+            self.call_soon_threadsafe(future.set_result, None)
+        except Exception as ex:
+            self.call_soon_threadsafe(future.set_exception, ex)
 
     def _check_running(self):
         if self.is_running():
@@ -640,6 +666,7 @@ class BaseEventLoop(events.AbstractEventLoop):
         self._closed = True
         self._ready.clear()
         self._scheduled.clear()
+        self._executor_shutdown_called = True
         executor = self._default_executor
         if executor is not None:
             self._default_executor = None
@@ -776,8 +803,12 @@ class BaseEventLoop(events.AbstractEventLoop):
             self._check_callback(func, 'run_in_executor')
         if executor is None:
             executor = self._default_executor
+            # Only check when the default executor is being used
+            self._check_default_executor()
             if executor is None:
-                executor = concurrent.futures.ThreadPoolExecutor()
+                executor = concurrent.futures.ThreadPoolExecutor(
+                    thread_name_prefix='asyncio'
+                )
                 self._default_executor = executor
         return futures.wrap_future(
             executor.submit(func, *args), loop=self)
@@ -1426,7 +1457,7 @@ class BaseEventLoop(events.AbstractEventLoop):
             fs = [self._create_server_getaddrinfo(host, port, family=family,
                                                   flags=flags)
                   for host in hosts]
-            infos = await tasks.gather(*fs, loop=self)
+            infos = await tasks._gather(*fs, loop=self)
             infos = set(itertools.chain.from_iterable(infos))
 
             completed = False
@@ -1484,7 +1515,7 @@ class BaseEventLoop(events.AbstractEventLoop):
             server._start_serving()
             # Skip one loop iteration so that all 'loop.add_reader'
             # go through.
-            await tasks.sleep(0, loop=self)
+            await tasks.sleep(0)
 
         if self._debug:
             logger.info("%r is serving", server)

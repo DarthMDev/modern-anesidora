@@ -5,7 +5,7 @@ from pandac.PandaModules import *
 config = getConfigShowbase()
 
 username = config.GetString("mysql-user")
-password = config.GetString("mysql-passwd")
+password = config.GetString("mysql-password")
 dbSalt = config.GetString("dev-branch-flavor","")
 if dbSalt:
     dbSalt = dbSalt + '_'
@@ -19,7 +19,7 @@ if username == "" or password == "":
 db = MySQLdb.connect(host="localhost",
                      port=3306,
                      user=username,
-                     passwd=password)
+                     password=password)
 
 print("Connected to MySQL at localhost.")
 

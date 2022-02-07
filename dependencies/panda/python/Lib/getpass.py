@@ -41,7 +41,7 @@ def unix_getpass(prompt='Password: ', stream=None):
 
     Always restores terminal settings before returning.
     """
-    passwd = None
+    password = None
     with contextlib.ExitStack() as stack:
         try:
             # Always try reading and writing directly on the tty first.
@@ -52,14 +52,14 @@ def unix_getpass(prompt='Password: ', stream=None):
             stack.enter_context(input)
             if not stream:
                 stream = input
-        except OSError as e:
+        except OSError:
             # If that fails, see if stdin can be controlled.
             stack.close()
             try:
                 fd = sys.stdin.fileno()
             except (AttributeError, ValueError):
                 fd = None
-                passwd = fallback_getpass(prompt, stream)
+                password = fallback_getpass(prompt, stream)
             input = sys.stdin
             if not stream:
                 stream = sys.stderr
@@ -74,12 +74,12 @@ def unix_getpass(prompt='Password: ', stream=None):
                     tcsetattr_flags |= termios.TCSASOFT
                 try:
                     termios.tcsetattr(fd, tcsetattr_flags, new)
-                    passwd = _raw_input(prompt, stream, input=input)
+                    password = _raw_input(prompt, stream, input=input)
                 finally:
                     termios.tcsetattr(fd, tcsetattr_flags, old)
                     stream.flush()  # issue7208
             except termios.error:
-                if passwd is not None:
+                if password is not None:
                     # _raw_input succeeded.  The final tcsetattr failed.  Reraise
                     # instead of leaving the terminal in an unknown state.
                     raise
@@ -88,14 +88,14 @@ def unix_getpass(prompt='Password: ', stream=None):
                 if stream is not input:
                     # clean up unused file objects before blocking
                     stack.close()
-                passwd = fallback_getpass(prompt, stream)
+                password = fallback_getpass(prompt, stream)
 
         stream.write('\n')
-        return passwd
+        return password
 
 
 def win_getpass(prompt='Password: ', stream=None):
-    """Prompt for password with echo off, using Windows getch()."""
+    """Prompt for password with echo off, using Windows getwch()."""
     if sys.stdin is not sys.__stdin__:
         return fallback_getpass(prompt, stream)
 

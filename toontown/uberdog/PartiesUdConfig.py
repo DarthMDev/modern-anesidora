@@ -30,5 +30,5 @@ else:
 	ttDbName = "toontownTopDb"
 
 ttDbUser = "ttDb_user"
-ttDbPasswd = "toontastic2008"
+ttDbpassword = "toontastic2008"
 

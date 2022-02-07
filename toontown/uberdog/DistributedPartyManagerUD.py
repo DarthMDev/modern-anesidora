@@ -30,7 +30,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         DistributedObjectGlobalUD.__init__(self, air)
         self.printlog = partiesUdLog("PartiesUdMonitor","localhost",12346)
         user = uber.config.GetString("mysql-user", '')
-        passwd = uber.config.GetString("mysql-passwd",'')
+        password = uber.config.GetString("mysql-password",'')
 
         # avId is key, if present, avatar is online
         self.isAvatarOnline = {}
@@ -50,19 +50,19 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
 
         if not user:
             user = PartiesUdConfig.ttDbUser
-        if not passwd:
-            passwd = PartiesUdConfig.ttDbPasswd
+        if not password:
+            password = PartiesUdConfig.ttDbpassword
 
         self.partyDb = ttPartyDb(host=uber.mysqlhost,
                                  port=PartiesUdConfig.ttDbPort,
                                  user = user,
-                                 passwd = passwd,
+                                 password = password,
                                  db=PartiesUdConfig.ttDbName)
 
         self.inviteDb = ttInviteDb(host=uber.mysqlhost,
                                    port=PartiesUdConfig.ttDbPort,
                                    user = user,
-                                   passwd = passwd,
+                                   password = password,
                                    db=PartiesUdConfig.ttDbName)
 
         # in minutes, how often do we check if a party can start

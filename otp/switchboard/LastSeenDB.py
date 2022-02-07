@@ -12,7 +12,7 @@ class LastSeenDB:
     """
     DB wrapper class for last seen info!  All SQL and SOAP code for last seen info should be in here.
     """
-    def __init__(self,log,host,port,user,passwd,dbname):
+    def __init__(self,log,host,port,user,password,dbname):
         self.sqlAvailable = True
         if not self.sqlAvailable:
             return
@@ -21,13 +21,13 @@ class LastSeenDB:
         self.host = host
         self.port = port
         self.user = user
-        self.passwd = passwd
+        self.password = password
         self.dbname = dbname
         try:
             self.db = MySQLdb.connect(host=host,
                                       port=port,
                                       user=user,
-                                      passwd=passwd)
+                                      password=password)
         except MySQLdb.OperationalError as e:
             self.log.warning("Failed to connect to MySQL at %s:%d.  LastSeenDB is disabled."%(host,port))
             self.sqlAvailable = 0
@@ -51,7 +51,7 @@ class LastSeenDB:
         self.db = MySQLdb.connect(host=self.host,
                                   port=self.port,
                                   user=self.user,
-                                  passwd=self.passwd)
+                                  password=self.password)
         cursor = self.db.cursor()
         cursor.execute("USE `%s`"%self.dbname)
         self.log.debug("Reconnected to MySQL server at %s:%d."%(self.host,self.port))
