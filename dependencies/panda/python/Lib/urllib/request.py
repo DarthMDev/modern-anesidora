@@ -53,7 +53,7 @@ authinfo = urllib.request.HTTPBasicAuthHandler()
 authinfo.add_password(realm='PDQ Application',
                       uri='https://mahler:8092/site-updates.py',
                       user='klem',
-                      password='geheim$parole')
+                      passwd='geheim$parole')
 
 proxy_support = urllib.request.ProxyHandler({"http" : "http://ahad-haam:3128"})
 
@@ -102,7 +102,7 @@ import warnings
 from urllib.error import URLError, HTTPError, ContentTooShortError
 from urllib.parse import (
     urlparse, urlsplit, urljoin, unwrap, quote, unquote,
-    _splittype, _splithost, _splitport, _splituser, _splitpassword,
+    _splittype, _splithost, _splitport, _splituser, _splitpasswd,
     _splitattr, _splitquery, _splitvalue, _splittag, _to_bytes,
     unquote_to_bytes, urlunparse)
 from urllib.response import addinfourl, addclosehook
@@ -781,7 +781,7 @@ def _parse_proxy(proxy):
         authority = r_scheme[2:end]
     userinfo, hostport = _splituser(authority)
     if userinfo is not None:
-        user, password = _splitpassword(userinfo)
+        user, password = _splitpasswd(userinfo)
     else:
         user = password = None
     return scheme, user, password, hostport
@@ -832,21 +832,21 @@ class ProxyHandler(BaseHandler):
 class HTTPPasswordMgr:
 
     def __init__(self):
-        self.password = {}
+        self.passwd = {}
 
-    def add_password(self, realm, uri, user, password):
+    def add_password(self, realm, uri, user, passwd):
         # uri could be a single URI or a sequence
         if isinstance(uri, str):
             uri = [uri]
-        if realm not in self.password:
-            self.password[realm] = {}
+        if realm not in self.passwd:
+            self.passwd[realm] = {}
         for default_port in True, False:
             reduced_uri = tuple(
                 self.reduce_uri(u, default_port) for u in uri)
-            self.password[realm][reduced_uri] = (user, password)
+            self.passwd[realm][reduced_uri] = (user, passwd)
 
     def find_user_password(self, realm, authuri):
-        domains = self.password.get(realm, {})
+        domains = self.passwd.get(realm, {})
         for default_port in True, False:
             reduced_authuri = self.reduce_uri(authuri, default_port)
             for uris, authinfo in domains.items():
@@ -909,12 +909,12 @@ class HTTPPasswordMgrWithPriorAuth(HTTPPasswordMgrWithDefaultRealm):
         self.authenticated = {}
         super().__init__(*args, **kwargs)
 
-    def add_password(self, realm, uri, user, password, is_authenticated=False):
+    def add_password(self, realm, uri, user, passwd, is_authenticated=False):
         self.update_authenticated(uri, is_authenticated)
         # Add a default for prior auth requests
         if realm is not None:
-            super().add_password(None, uri, user, password)
-        super().add_password(realm, uri, user, password)
+            super().add_password(None, uri, user, passwd)
+        super().add_password(realm, uri, user, passwd)
 
     def update_authenticated(self, uri, is_authenticated=False):
         # uri could be a single URI or a sequence
@@ -958,8 +958,8 @@ class AbstractBasicAuthHandler:
     def __init__(self, password_mgr=None):
         if password_mgr is None:
             password_mgr = HTTPPasswordMgr()
-        self.password = password_mgr
-        self.add_password = self.password.add_password
+        self.passwd = password_mgr
+        self.add_password = self.passwd.add_password
 
     def _parse_realm(self, header):
         # parse WWW-Authenticate header: accept multiple challenges per header
@@ -1008,7 +1008,7 @@ class AbstractBasicAuthHandler:
                              % (scheme,))
 
     def retry_http_basic_auth(self, host, req, realm):
-        user, pw = self.password.find_user_password(realm, host)
+        user, pw = self.passwd.find_user_password(realm, host)
         if pw is not None:
             raw = "%s:%s" % (user, pw)
             auth = "Basic " + base64.b64encode(raw.encode()).decode("ascii")
@@ -1020,24 +1020,24 @@ class AbstractBasicAuthHandler:
             return None
 
     def http_request(self, req):
-        if (not hasattr(self.password, 'is_authenticated') or
-           not self.password.is_authenticated(req.full_url)):
+        if (not hasattr(self.passwd, 'is_authenticated') or
+           not self.passwd.is_authenticated(req.full_url)):
             return req
 
         if not req.has_header('Authorization'):
-            user, password = self.password.find_user_password(None, req.full_url)
-            credentials = '{0}:{1}'.format(user, password).encode()
+            user, passwd = self.passwd.find_user_password(None, req.full_url)
+            credentials = '{0}:{1}'.format(user, passwd).encode()
             auth_str = base64.standard_b64encode(credentials).decode()
             req.add_unredirected_header('Authorization',
                                         'Basic {}'.format(auth_str.strip()))
         return req
 
     def http_response(self, req, response):
-        if hasattr(self.password, 'is_authenticated'):
+        if hasattr(self.passwd, 'is_authenticated'):
             if 200 <= response.code < 300:
-                self.password.update_authenticated(req.full_url, True)
+                self.passwd.update_authenticated(req.full_url, True)
             else:
-                self.password.update_authenticated(req.full_url, False)
+                self.passwd.update_authenticated(req.full_url, False)
         return response
 
     https_request = http_request
@@ -1086,11 +1086,11 @@ class AbstractDigestAuthHandler:
 
     # XXX qop="auth-int" supports is shaky
 
-    def __init__(self, password=None):
-        if password is None:
-            password = HTTPPasswordMgr()
-        self.password = password
-        self.add_password = self.password.add_password
+    def __init__(self, passwd=None):
+        if passwd is None:
+            passwd = HTTPPasswordMgr()
+        self.passwd = passwd
+        self.add_password = self.passwd.add_password
         self.retried = 0
         self.nonce_count = 0
         self.last_nonce = None
@@ -1157,7 +1157,7 @@ class AbstractDigestAuthHandler:
         if H is None:
             return None
 
-        user, pw = self.password.find_user_password(realm, req.full_url)
+        user, pw = self.passwd.find_user_password(realm, req.full_url)
         if user is None:
             return None
 
@@ -1542,12 +1542,12 @@ class FTPHandler(BaseHandler):
         # username/password handling
         user, host = _splituser(host)
         if user:
-            user, password = _splitpassword(user)
+            user, passwd = _splitpasswd(user)
         else:
-            password = None
+            passwd = None
         host = unquote(host)
         user = user or ''
-        password = password or ''
+        passwd = passwd or ''
 
         try:
             host = socket.gethostbyname(host)
@@ -1560,7 +1560,7 @@ class FTPHandler(BaseHandler):
         if dirs and not dirs[0]:
             dirs = dirs[1:]
         try:
-            fw = self.connect_ftp(user, password, host, port, dirs, req.timeout)
+            fw = self.connect_ftp(user, passwd, host, port, dirs, req.timeout)
             type = file and 'I' or 'D'
             for attr in attrs:
                 attr, value = _splitvalue(attr)
@@ -1580,8 +1580,8 @@ class FTPHandler(BaseHandler):
             exc = URLError('ftp error: %r' % exp)
             raise exc.with_traceback(sys.exc_info()[2])
 
-    def connect_ftp(self, user, password, host, port, dirs, timeout):
-        return ftpwrapper(user, password, host, port, dirs, timeout,
+    def connect_ftp(self, user, passwd, host, port, dirs, timeout):
+        return ftpwrapper(user, passwd, host, port, dirs, timeout,
                           persistent=False)
 
 class CacheFTPHandler(FTPHandler):
@@ -1600,12 +1600,12 @@ class CacheFTPHandler(FTPHandler):
     def setMaxConns(self, m):
         self.max_conns = m
 
-    def connect_ftp(self, user, password, host, port, dirs, timeout):
+    def connect_ftp(self, user, passwd, host, port, dirs, timeout):
         key = user, host, port, '/'.join(dirs), timeout
         if key in self.cache:
             self.timeout[key] = time.time() + self.delay
         else:
-            self.cache[key] = ftpwrapper(user, password, host, port,
+            self.cache[key] = ftpwrapper(user, passwd, host, port,
                                          dirs, timeout)
             self.timeout[key] = time.time() + self.delay
         self.check_cache()
@@ -1880,44 +1880,44 @@ class URLopener:
         - data is payload for a POST request or None.
         """
 
-        user_password = None
-        proxy_password= None
+        user_passwd = None
+        proxy_passwd= None
         if isinstance(url, str):
             host, selector = _splithost(url)
             if host:
-                user_password, host = _splituser(host)
+                user_passwd, host = _splituser(host)
                 host = unquote(host)
             realhost = host
         else:
             host, selector = url
             # check whether the proxy contains authorization information
-            proxy_password, host = _splituser(host)
+            proxy_passwd, host = _splituser(host)
             # now we proceed with the url we want to obtain
             urltype, rest = _splittype(selector)
             url = rest
-            user_password = None
+            user_passwd = None
             if urltype.lower() != 'http':
                 realhost = None
             else:
                 realhost, rest = _splithost(rest)
                 if realhost:
-                    user_password, realhost = _splituser(realhost)
-                if user_password:
+                    user_passwd, realhost = _splituser(realhost)
+                if user_passwd:
                     selector = "%s://%s%s" % (urltype, realhost, rest)
                 if proxy_bypass(realhost):
                     host = realhost
 
         if not host: raise OSError('http error', 'no host given')
 
-        if proxy_password:
-            proxy_password = unquote(proxy_password)
-            proxy_auth = base64.b64encode(proxy_password.encode()).decode('ascii')
+        if proxy_passwd:
+            proxy_passwd = unquote(proxy_passwd)
+            proxy_auth = base64.b64encode(proxy_passwd.encode()).decode('ascii')
         else:
             proxy_auth = None
 
-        if user_password:
-            user_password = unquote(user_password)
-            auth = base64.b64encode(user_password.encode()).decode('ascii')
+        if user_passwd:
+            user_passwd = unquote(user_passwd)
+            auth = base64.b64encode(user_passwd.encode()).decode('ascii')
         else:
             auth = None
         http_conn = connection_factory(host)
@@ -2044,11 +2044,11 @@ class URLopener:
         if not host: raise URLError('ftp error: no host given')
         host, port = _splitport(host)
         user, host = _splituser(host)
-        if user: user, password = _splitpassword(user)
-        else: password = None
+        if user: user, passwd = _splitpasswd(user)
+        else: passwd = None
         host = unquote(host)
         user = unquote(user or '')
-        password = unquote(password or '')
+        passwd = unquote(passwd or '')
         host = socket.gethostbyname(host)
         if not port:
             import ftplib
@@ -2073,7 +2073,7 @@ class URLopener:
         try:
             if key not in self.ftpcache:
                 self.ftpcache[key] = \
-                    ftpwrapper(user, password, host, port, dirs)
+                    ftpwrapper(user, passwd, host, port, dirs)
             if not file: type = 'D'
             else: type = 'I'
             for attr in attrs:
@@ -2267,10 +2267,10 @@ class FancyURLopener(URLopener):
         proxyhost, proxyselector = _splithost(proxyhost)
         i = proxyhost.find('@') + 1
         proxyhost = proxyhost[i:]
-        user, password = self.get_user_password(proxyhost, realm, i)
-        if not (user or password): return None
+        user, passwd = self.get_user_passwd(proxyhost, realm, i)
+        if not (user or passwd): return None
         proxyhost = "%s:%s@%s" % (quote(user, safe=''),
-                                  quote(password, safe=''), proxyhost)
+                                  quote(passwd, safe=''), proxyhost)
         self.proxies['http'] = 'http://' + proxyhost + proxyselector
         if data is None:
             return self.open(newurl)
@@ -2285,10 +2285,10 @@ class FancyURLopener(URLopener):
         proxyhost, proxyselector = _splithost(proxyhost)
         i = proxyhost.find('@') + 1
         proxyhost = proxyhost[i:]
-        user, password = self.get_user_password(proxyhost, realm, i)
-        if not (user or password): return None
+        user, passwd = self.get_user_passwd(proxyhost, realm, i)
+        if not (user or passwd): return None
         proxyhost = "%s:%s@%s" % (quote(user, safe=''),
-                                  quote(password, safe=''), proxyhost)
+                                  quote(passwd, safe=''), proxyhost)
         self.proxies['https'] = 'https://' + proxyhost + proxyselector
         if data is None:
             return self.open(newurl)
@@ -2299,10 +2299,10 @@ class FancyURLopener(URLopener):
         host, selector = _splithost(url)
         i = host.find('@') + 1
         host = host[i:]
-        user, password = self.get_user_password(host, realm, i)
-        if not (user or password): return None
+        user, passwd = self.get_user_passwd(host, realm, i)
+        if not (user or passwd): return None
         host = "%s:%s@%s" % (quote(user, safe=''),
-                             quote(password, safe=''), host)
+                             quote(passwd, safe=''), host)
         newurl = 'http://' + host + selector
         if data is None:
             return self.open(newurl)
@@ -2313,35 +2313,35 @@ class FancyURLopener(URLopener):
         host, selector = _splithost(url)
         i = host.find('@') + 1
         host = host[i:]
-        user, password = self.get_user_password(host, realm, i)
-        if not (user or password): return None
+        user, passwd = self.get_user_passwd(host, realm, i)
+        if not (user or passwd): return None
         host = "%s:%s@%s" % (quote(user, safe=''),
-                             quote(password, safe=''), host)
+                             quote(passwd, safe=''), host)
         newurl = 'https://' + host + selector
         if data is None:
             return self.open(newurl)
         else:
             return self.open(newurl, data)
 
-    def get_user_password(self, host, realm, clear_cache=0):
+    def get_user_passwd(self, host, realm, clear_cache=0):
         key = realm + '@' + host.lower()
         if key in self.auth_cache:
             if clear_cache:
                 del self.auth_cache[key]
             else:
                 return self.auth_cache[key]
-        user, password = self.prompt_user_password(host, realm)
-        if user or password: self.auth_cache[key] = (user, password)
-        return user, password
+        user, passwd = self.prompt_user_passwd(host, realm)
+        if user or passwd: self.auth_cache[key] = (user, passwd)
+        return user, passwd
 
-    def prompt_user_password(self, host, realm):
+    def prompt_user_passwd(self, host, realm):
         """Override this in a GUI environment!"""
         import getpass
         try:
             user = input("Enter username for %s at %s: " % (realm, host))
-            password = getpass.getpass("Enter password for %s in %s at %s: " %
+            passwd = getpass.getpass("Enter password for %s in %s at %s: " %
                 (user, realm, host))
-            return user, password
+            return user, passwd
         except KeyboardInterrupt:
             print()
             return None, None
@@ -2391,10 +2391,10 @@ def noheaders():
 class ftpwrapper:
     """Class used by open_ftp() for cache of open FTP connections."""
 
-    def __init__(self, user, password, host, port, dirs, timeout=None,
+    def __init__(self, user, passwd, host, port, dirs, timeout=None,
                  persistent=True):
         self.user = user
-        self.password = password
+        self.passwd = passwd
         self.host = host
         self.port = port
         self.dirs = dirs
@@ -2412,7 +2412,7 @@ class ftpwrapper:
         self.busy = 0
         self.ftp = ftplib.FTP()
         self.ftp.connect(self.host, self.port, self.timeout)
-        self.ftp.login(self.user, self.password)
+        self.ftp.login(self.user, self.passwd)
         _target = '/'.join(self.dirs)
         self.ftp.cwd(_target)
 

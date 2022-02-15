@@ -41,7 +41,7 @@ def unix_getpass(prompt='Password: ', stream=None):
 
     Always restores terminal settings before returning.
     """
-    password = None
+    passwd = None
     with contextlib.ExitStack() as stack:
         try:
             # Always try reading and writing directly on the tty first.
@@ -59,7 +59,7 @@ def unix_getpass(prompt='Password: ', stream=None):
                 fd = sys.stdin.fileno()
             except (AttributeError, ValueError):
                 fd = None
-                password = fallback_getpass(prompt, stream)
+                passwd = fallback_getpass(prompt, stream)
             input = sys.stdin
             if not stream:
                 stream = sys.stderr
@@ -74,12 +74,12 @@ def unix_getpass(prompt='Password: ', stream=None):
                     tcsetattr_flags |= termios.TCSASOFT
                 try:
                     termios.tcsetattr(fd, tcsetattr_flags, new)
-                    password = _raw_input(prompt, stream, input=input)
+                    passwd = _raw_input(prompt, stream, input=input)
                 finally:
                     termios.tcsetattr(fd, tcsetattr_flags, old)
                     stream.flush()  # issue7208
             except termios.error:
-                if password is not None:
+                if passwd is not None:
                     # _raw_input succeeded.  The final tcsetattr failed.  Reraise
                     # instead of leaving the terminal in an unknown state.
                     raise
@@ -88,10 +88,10 @@ def unix_getpass(prompt='Password: ', stream=None):
                 if stream is not input:
                     # clean up unused file objects before blocking
                     stack.close()
-                password = fallback_getpass(prompt, stream)
+                passwd = fallback_getpass(prompt, stream)
 
         stream.write('\n')
-        return password
+        return passwd
 
 
 def win_getpass(prompt='Password: ', stream=None):

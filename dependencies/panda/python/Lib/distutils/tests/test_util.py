@@ -250,7 +250,7 @@ class UtilTestCase(support.EnvironGuard, unittest.TestCase):
         import pwd
 
         # only set pw_dir field, other fields are not used
-        result = pwd.struct_password((None, None, None, None, None,
+        result = pwd.struct_passwd((None, None, None, None, None,
                                     '/home/distutils', None))
         with mock.patch.object(pwd, 'getpwuid', return_value=result):
             check_environ()

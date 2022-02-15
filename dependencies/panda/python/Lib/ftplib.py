@@ -6,7 +6,7 @@ Example:
 
 >>> from ftplib import FTP
 >>> ftp = FTP('ftp.python.org') # connect to host, default port
->>> ftp.login() # default, i.e.: user anonymous, password anonymous@
+>>> ftp.login() # default, i.e.: user anonymous, passwd anonymous@
 '230 Guest login ok, access restrictions apply.'
 >>> ftp.retrlines('LIST') # list directory contents
 total 9
@@ -75,7 +75,7 @@ class FTP:
     '''An FTP client class.
 
     To create a connection, call the class using these arguments:
-            host, user, password, acct, timeout, source_address, encoding
+            host, user, passwd, acct, timeout, source_address, encoding
 
     The first four arguments are all strings, and have default value ''.
     The parameter ´timeout´ must be numeric and defaults to None if not
@@ -106,13 +106,13 @@ class FTP:
     # Disables https://bugs.python.org/issue43285 security if set to True.
     trust_server_pasv_ipv4_address = False
 
-    def __init__(self, host='', user='', password='', acct='',
+    def __init__(self, host='', user='', passwd='', acct='',
                  timeout=_GLOBAL_DEFAULT_TIMEOUT, source_address=None, *,
                  encoding='utf-8'):
         """Initialization method (called by class instantiation).
         Initialize host to localhost, port to standard ftp port.
         Optional arguments are host (for connect()),
-        and user, password, acct (for login()).
+        and user, passwd, acct (for login()).
         """
         self.encoding = encoding
         self.source_address = source_address
@@ -120,7 +120,7 @@ class FTP:
         if host:
             self.connect(host)
             if user:
-                self.login(user, password, acct)
+                self.login(user, passwd, acct)
 
     def __enter__(self):
         return self
@@ -392,15 +392,15 @@ class FTP:
         """Like ntransfercmd() but returns only the socket."""
         return self.ntransfercmd(cmd, rest)[0]
 
-    def login(self, user = '', password = '', acct = ''):
+    def login(self, user = '', passwd = '', acct = ''):
         '''Login, default anonymous.'''
         if not user:
             user = 'anonymous'
-        if not password:
-            password = ''
+        if not passwd:
+            passwd = ''
         if not acct:
             acct = ''
-        if user == 'anonymous' and password in {'', '-'}:
+        if user == 'anonymous' and passwd in {'', '-'}:
             # If there is no anonymous ftp password specified
             # then we'll just use anonymous@
             # We don't send any other thing because:
@@ -408,10 +408,10 @@ class FTP:
             # - We want to stop SPAM
             # - We don't want to let ftp sites to discriminate by the user,
             #   host or country.
-            password = password + 'anonymous@'
+            passwd = passwd + 'anonymous@'
         resp = self.sendcmd('USER ' + user)
         if resp[0] == '3':
-            resp = self.sendcmd('PASS ' + password)
+            resp = self.sendcmd('PASS ' + passwd)
         if resp[0] == '3':
             resp = self.sendcmd('ACCT ' + acct)
         if resp[0] != '2':
@@ -715,7 +715,7 @@ else:
         '''
         ssl_version = ssl.PROTOCOL_TLS_CLIENT
 
-        def __init__(self, host='', user='', password='', acct='',
+        def __init__(self, host='', user='', passwd='', acct='',
                      keyfile=None, certfile=None, context=None,
                      timeout=_GLOBAL_DEFAULT_TIMEOUT, source_address=None, *,
                      encoding='utf-8'):
@@ -737,13 +737,13 @@ else:
                                                      keyfile=keyfile)
             self.context = context
             self._prot_p = False
-            super().__init__(host, user, password, acct,
+            super().__init__(host, user, passwd, acct,
                              timeout, source_address, encoding=encoding)
 
-        def login(self, user='', password='', acct='', secure=True):
+        def login(self, user='', passwd='', acct='', secure=True):
             if secure and not isinstance(self.sock, ssl.SSLSocket):
                 self.auth()
-            return super().login(user, password, acct)
+            return super().login(user, passwd, acct)
 
         def auth(self):
             '''Set up secure control connection by using TLS/SSL.'''
@@ -947,7 +947,7 @@ def test():
     host = sys.argv[1]
     ftp = FTP(host)
     ftp.set_debuglevel(debugging)
-    userid = password = acct = ''
+    userid = passwd = acct = ''
     try:
         netrcobj = netrc.netrc(rcfile)
     except OSError:
@@ -956,12 +956,12 @@ def test():
                              " -- using anonymous login.")
     else:
         try:
-            userid, acct, password = netrcobj.authenticators(host)
+            userid, acct, passwd = netrcobj.authenticators(host)
         except KeyError:
             # no account for host
             sys.stderr.write(
                     "No account -- using anonymous login.")
-    ftp.login(userid, password, acct)
+    ftp.login(userid, passwd, acct)
     for file in sys.argv[2:]:
         if file[:2] == '-l':
             ftp.dir(file[2:])

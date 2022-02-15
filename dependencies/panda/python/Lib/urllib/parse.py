@@ -1075,22 +1075,22 @@ def splituser(host):
 
 
 def _splituser(host):
-    """splituser('user[:password]@host[:port]') --> 'user[:password]', 'host[:port]'."""
+    """splituser('user[:passwd]@host[:port]') --> 'user[:passwd]', 'host[:port]'."""
     user, delim, host = host.rpartition('@')
     return (user if delim else None), host
 
 
-def splitpassword(user):
-    warnings.warn("urllib.parse.splitpassword() is deprecated as of 3.8, "
+def splitpasswd(user):
+    warnings.warn("urllib.parse.splitpasswd() is deprecated as of 3.8, "
                   "use urllib.parse.urlparse() instead",
                   DeprecationWarning, stacklevel=2)
-    return _splitpassword(user)
+    return _splitpasswd(user)
 
 
-def _splitpassword(user):
-    """splitpassword('user:password') -> 'user', 'password'."""
-    user, delim, password = user.partition(':')
-    return user, (password if delim else None)
+def _splitpasswd(user):
+    """splitpasswd('user:passwd') -> 'user', 'passwd'."""
+    user, delim, passwd = user.partition(':')
+    return user, (passwd if delim else None)
 
 
 def splitport(host):

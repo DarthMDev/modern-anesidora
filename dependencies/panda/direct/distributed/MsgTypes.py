@@ -143,8 +143,8 @@ if ConfigVariableBool('astron-support', True):
         }
 else:
     MsgName2Id = {
-        # 2 new params: password, char bool 0/1 1 = new account
-        # 2 new return values: 129 = not found, 12 = bad password,
+        # 2 new params: passwd, char bool 0/1 1 = new account
+        # 2 new return values: 129 = not found, 12 = bad passwd,
         'CLIENT_LOGIN':                                  1,
         'CLIENT_LOGIN_RESP':                             2,
         'CLIENT_GET_AVATARS':                            3,
