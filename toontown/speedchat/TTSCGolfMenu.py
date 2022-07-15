@@ -7,7 +7,7 @@ TTSCGolfMenu.py: contains the TTSCGolfMenu class
 #base.localAvatar.chatMgr.chatInputSpeedChat.removeGolfMenu()
 #base.localAvatar.chatMgr.chatInputSpeedChat.speedChat[2].getMenu()
 
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from otp.speedchat.SCMenu import SCMenu
 from otp.speedchat.SCMenuHolder import SCMenuHolder
 from otp.speedchat.SCStaticTextTerminal import SCStaticTextTerminal

@@ -28,7 +28,7 @@ from pandac.PandaModules import getModelPath, Filename
     # doesn't hurt to add it again.
 getModelPath().appendDirectory(Filename.expandFrom("resources/"))
 
-from direct.showbase.PythonUtil import *
+from otp.otpbase.PythonUtil import *
 from otp.otpbase.PythonUtil import *
 from otp.uberdog.UberDogGlobal import *
 from toontown.coderedemption import TTCodeRedemptionConsts

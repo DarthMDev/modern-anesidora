@@ -14,7 +14,7 @@
 import random
 
 # panda imports
-from direct.showbase.PythonUtil import Enum
+from otp.otpbase.PythonUtil import Enum
 from direct.gui.DirectGui import DirectFrame, DGG
 from panda3d.core import Vec2, VBase4, VBase4F
 from panda3d.core import CardMaker

@@ -28,7 +28,7 @@
 # Direct Specific Modules
 #################################################################
 from direct.directnotify import DirectNotifyGlobal
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from direct.task import Task
 
 #################################################################

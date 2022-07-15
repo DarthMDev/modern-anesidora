@@ -1,6 +1,6 @@
 from . import DatabaseObject
 from direct.showbase import DirectObject
-from direct.showbase.PythonUtil import intersection
+from otp.otpbase.PythonUtil import intersection
 from toontown.toon import DistributedToonAI
 from toontown.estate import DistributedHouseAI
 from toontown.pets import DistributedPetAI

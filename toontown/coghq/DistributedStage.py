@@ -239,7 +239,7 @@ class DistributedStage(DistributedObject.DistributedObject):
         self.notify.debug('camEnterRoom: %s' % roomNum)
         self.notify.info("CAMENTERROOM doID%s num%s" % (self.doId,roomNum))
         self.notify.info("av: %s, cam: %s" % (localAvatar.getPos(), camera.getPos()))
-        #from direct.showbase import PythonUtil
+        #from otp.otpbase import PythonUtil
         #print PythonUtil.StackTrace()
         #from direct.interval.IntervalGlobal import ivalMgr
         #print ivalMgr

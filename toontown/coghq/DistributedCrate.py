@@ -4,7 +4,7 @@ from direct.interval.IntervalGlobal import *
 from toontown.toonbase.ToontownGlobals import *
 from .CrateGlobals import *
 
-from direct.showbase.PythonUtil import fitSrcAngle2Dest
+from otp.otpbase.PythonUtil import fitSrcAngle2Dest
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
 from . import MovingPlatform

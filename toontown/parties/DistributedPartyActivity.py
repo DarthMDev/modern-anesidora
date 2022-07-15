@@ -13,7 +13,7 @@ from direct.distributed.ClockDelta import globalClockDelta
 #from direct.gui.DirectGui import DirectLabel
 from direct.distributed import DistributedObject
 from direct.showbase import RandomNumGen
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from direct.interval.IntervalGlobal import Sequence, Parallel, ActorInterval
 from direct.interval.FunctionInterval import Wait
 

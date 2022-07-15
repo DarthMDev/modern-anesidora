@@ -7,7 +7,7 @@ TTSCResistanceMenu.py: contains the TTSCResistanceMenu class
 #base.localAvatar.chatMgr.chatInputSpeedChat.removeResistanceMenu()
 #base.localAvatar.chatMgr.chatInputSpeedChat.speedChat[2].getMenu()
 
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from otp.speedchat.SCMenu import SCMenu
 from otp.speedchat.SCMenuHolder import SCMenuHolder
 from toontown.chat import ResistanceChat

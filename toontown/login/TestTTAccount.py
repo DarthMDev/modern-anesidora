@@ -2,7 +2,7 @@
 # import this module once Toontown is running
 
 import random
-from direct.showbase.PythonUtil import Functor
+from otp.otpbase.PythonUtil import Functor
 
 SHOULD_SUCCEED = 0
 SHOULD_FAIL = 1

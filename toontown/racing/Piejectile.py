@@ -1,7 +1,7 @@
 
 import math
 import random
-from direct.showbase.PythonUtil import *
+from otp.otpbase.PythonUtil import *
 from direct.showbase.DirectObject import DirectObject
 from direct.task import Task
 #from direct.distributed.ClockDelta import *

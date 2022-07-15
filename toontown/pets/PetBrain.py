@@ -1,8 +1,8 @@
 """PetBrain module: contains the PetBrain class"""
 
 from pandac.PandaModules import *
-from direct.showbase.PythonUtil import weightedChoice, randFloat, Functor
-from direct.showbase.PythonUtil import list2dict
+from otp.otpbase.PythonUtil import weightedChoice, randFloat, Functor
+from otp.otpbase.PythonUtil import list2dict
 from direct.showbase import DirectObject
 from direct.distributed import DistributedObjectAI
 from direct.directnotify import DirectNotifyGlobal

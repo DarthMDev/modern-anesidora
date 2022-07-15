@@ -1,5 +1,5 @@
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
-from direct.showbase.PythonUtil import makeTuple
+from otp.otpbase.PythonUtil import makeTuple
 
 class DistributedInterestOpenerAI(DistributedObjectAI):
     """

@@ -4,7 +4,7 @@ from toontown.toon import ToonHead
 from toontown.toonbase import ToontownTimer
 from direct.gui import DirectGuiGlobals as DGG
 from direct.directnotify import DirectNotifyGlobal
-from direct.showbase.PythonUtil import Functor
+from otp.otpbase.PythonUtil import Functor
 from toontown.minigame import TravelGameGlobals
 from toontown.distributed import DelayDelete
 from panda3d.otp import NametagFloat2d, Nametag, NametagGlobals

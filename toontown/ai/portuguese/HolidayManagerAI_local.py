@@ -8,7 +8,7 @@
 # Direct Specific Modules
 #################################################################
 #from direct.directnotify import DirectNotifyGlobal
-from direct.showbase.PythonUtil import Enum, SingletonError
+from otp.otpbase.PythonUtil import Enum, SingletonError
 #from direct.task import Task
 
 #################################################################

@@ -8,7 +8,7 @@ import datetime
 
 # panda3d imports
 from pandac.PandaModules import *
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from direct.task import Task
 
 # toontown imports

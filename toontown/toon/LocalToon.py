@@ -7,10 +7,10 @@ import math
 from direct.interval.IntervalGlobal import *
 from direct.distributed.ClockDelta import *
 #from direct.showbase.InputStateGlobal import inputState
-from direct.showbase.PythonUtil import *
+from otp.otpbase.PythonUtil import *
 from direct.gui.DirectGui import *
 from direct.task import Task
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from direct.directnotify import DirectNotifyGlobal
 from direct.gui import DirectGuiGlobals
 

@@ -1,7 +1,7 @@
 from pandac.PandaModules import *
 from direct.interval.IntervalGlobal import *
 from direct.distributed import ClockDelta
-from direct.showbase.PythonUtil import lerp
+from otp.otpbase.PythonUtil import lerp
 import math
 from direct.directnotify import DirectNotifyGlobal
 from pandac.PandaModules import NodePath
@@ -9,7 +9,7 @@ from direct.task import Task
 from toontown.toonbase import ToontownGlobals
 from direct.distributed import DistributedObject
 from direct.distributed import DistributedNode
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from otp.avatar import ShadowCaster
 import random
 #import Branch

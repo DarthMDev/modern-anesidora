@@ -1,5 +1,7 @@
 import dbm
+import dbm.dumb
 import json
+import sys
 import time
 from datetime import datetime
 
@@ -22,7 +24,10 @@ class AccountDB:
 
         # Setup the dbm:
         accountDbFile = config.GetString('accountdb-local-file', 'dependencies/astron/databases/accounts.db')
-        self.dbm = dbm.open(accountDbFile, 'c')
+        if sys.platform != 'darwin':
+            self.dbm = dbm.open(accountDbFile, 'c')
+        else:
+            self.dbm = dbm.dumb.open(accountDbFile, 'c')
 
     def lookup(self, playToken, callback):
         raise NotImplementedError('lookup')  # Must be overridden by subclass.

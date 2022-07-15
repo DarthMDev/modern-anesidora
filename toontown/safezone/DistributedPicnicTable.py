@@ -19,7 +19,7 @@ from toontown.toonbase.ToontownTimer import ToontownTimer
 from toontown.toonbase import ToontownGlobals
 
 
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from otp.otpbase import OTPGlobals
 
 

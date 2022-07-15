@@ -5,7 +5,9 @@ may have meaning to several classes.
 
 from . import TTLocalizer
 from otp.otpbase.OTPGlobals import *
-from direct.showbase.PythonUtil import Enum, invertDict
+from otp.otpbase.PythonUtil import Enum
+from direct.showbase.PythonUtil import invertDict
+
 from panda3d.core import BitMask32, Vec4
 MapHotkeyOn = 'alt'
 MapHotkeyOff = 'alt-up'

@@ -11,7 +11,7 @@
 ##########################################################################
 #from direct.directbase import DirectStart
 from direct.directnotify import DirectNotifyGlobal
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from toontown.toonbase import TTLocalizer
 from pandac.PandaModules import *
 from .KartShopGlobals import *

@@ -1,5 +1,5 @@
 from pandac.PandaModules import *
-from direct.showbase.PythonUtil import Enum
+from otp.otpbase.PythonUtil import Enum
 import random
 
 def zoneNum2str(num):

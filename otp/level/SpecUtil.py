@@ -5,7 +5,7 @@ from pandac.PandaModules import *
 from . import LevelSpec
 from . import LevelConstants
 from . import LevelUtil
-from direct.showbase.PythonUtil import list2dict
+from otp.otpbase.PythonUtil import list2dict
 from . import EntityTypes
 import types
 

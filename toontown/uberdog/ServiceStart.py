@@ -174,7 +174,7 @@ print("\n\nStarting Uberdog on %s port %s. %s %s" % \
 print("Initializing the Toontown UberDog (Uber Distributed Object Globals server)...")
 
 from toontown.uberdog.ToontownUberDog import ToontownUberDog
-from direct.showbase.PythonUtil import *
+from otp.otpbase.PythonUtil import *
 
 uber.objectNames = set(os.getenv("uberdog_objects", "").split())
 

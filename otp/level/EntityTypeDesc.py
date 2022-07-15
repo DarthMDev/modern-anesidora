@@ -2,7 +2,7 @@
 
 from direct.directnotify import DirectNotifyGlobal
 from . import AttribDesc
-from direct.showbase.PythonUtil import mostDerivedLast
+from otp.otpbase.PythonUtil import mostDerivedLast
 
 class EntityTypeDesc:
     """This class is meta-data that describes an Entity type."""

@@ -1,7 +1,7 @@
 # MinigameGlobals.py: global minigame values
 # used by AI and client
 
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from toontown.toonbase import ToontownGlobals
 from toontown.hood import ZoneUtil
 

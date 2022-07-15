@@ -1,7 +1,7 @@
 from toontown.catalog.CatalogWallpaperItem import *
 from direct.gui.DirectGui import *
 from pandac.PandaModules import *
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from toontown.toonbase import ToontownGlobals
 
 wallpaperDict = {}

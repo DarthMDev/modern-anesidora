@@ -6,7 +6,7 @@ from . import RingAction
 from . import RingTracks
 from . import RingTrack
 from . import RingTrackGroup
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 
 # ringTrackGroup types/difficulty levels
 STATIC = 0  # stationary rings

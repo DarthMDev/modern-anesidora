@@ -3,7 +3,7 @@
 from pandac.PandaModules import *
 from direct.interval.IntervalGlobal import *
 from direct.distributed.ClockDelta import *
-from direct.showbase.PythonUtil import lerp
+from otp.otpbase.PythonUtil import lerp
 from direct.fsm import StateData
 import math
 

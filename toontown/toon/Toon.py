@@ -23,7 +23,7 @@ from toontown.hood import ZoneUtil
 from toontown.battle import SuitBattleGlobals
 from otp.otpbase import OTPGlobals
 from toontown.effects import DustCloud
-from direct.showbase.PythonUtil import Functor
+from otp.otpbase.PythonUtil import Functor
 from toontown.distributed import DelayDelete
 import types, functools
 from panda3d.otp import CFThought

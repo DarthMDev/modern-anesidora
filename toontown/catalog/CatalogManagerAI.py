@@ -12,7 +12,7 @@ from toontown.toonbase import ToontownGlobals
 import time
 import math
 from toontown.ai.RepairAvatars import AvatarGetter
-from direct.showbase.PythonUtil import Functor
+from otp.otpbase.PythonUtil import Functor
 from toontown.catalog import CatalogItemList
 from toontown.catalog import CatalogItem
 

@@ -5030,7 +5030,7 @@
  import NameCheck
  from toontown.toontowngui import TeaserPanel
  from direct.distributed.PyDatagram import PyDatagram
-+from direct.showbase import PythonUtil
++from otp.otpbase import PythonUtil
  
 -MAX_NAME_WIDTH = 7.5
 +MAX_NAME_WIDTH = TTLocalizer.NSmaxNameWidth

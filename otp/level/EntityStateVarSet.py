@@ -1,5 +1,5 @@
 from direct.fsm.StatePush import StateVar
-from direct.showbase.PythonUtil import getSetterName
+from otp.otpbase.PythonUtil import getSetterName
 from otp.level.Entity import Entity
 
 # given an entity type, acts as an entity that has a StateVar attribute for each attribute of the entity type

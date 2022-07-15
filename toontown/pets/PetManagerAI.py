@@ -5,7 +5,7 @@ from toontown.ai import ToontownAIMsgTypes
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import *
 from direct.task import Task
-from direct.showbase.PythonUtil import Functor
+from otp.otpbase.PythonUtil import Functor
 from toontown.pets import PetUtil
 from toontown.pets import PetNameGenerator
 

@@ -4,7 +4,7 @@ from direct.directnotify import DirectNotifyGlobal
 from toontown.quest import Quests
 from toontown.toon import NPCToons
 import random
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from . import FishGlobals
 from toontown.toonbase import TTLocalizer
 from . import FishBase

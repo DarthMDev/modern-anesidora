@@ -17,14 +17,14 @@ from pandac.PandaModules import *
 from direct.interval.MetaInterval import Sequence, Parallel
 from direct.interval.FunctionInterval import Func
 from direct.interval.LerpInterval import LerpScaleInterval, LerpColorScaleInterval
-from direct.showbase.PythonUtil import bound
+from otp.otpbase.PythonUtil import bound
 
 from toontown.toon import ToonHead
 from toontown.minigame.CannonGameGlobals import *
 from toontown.toonbase import ToontownGlobals
 
 from toontown.parties.PartyUtils import toRadians, calcVelocity
-from direct.showbase.PythonUtil import StackTrace
+from otp.otpbase.PythonUtil import StackTrace
 from panda3d.otp import  *
 CANNON_ROTATION_MIN = -70
 CANNON_ROTATION_MAX = 70

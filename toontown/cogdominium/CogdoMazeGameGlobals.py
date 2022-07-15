@@ -1,4 +1,4 @@
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from panda3d.core import VBase4
 GameActions = PythonUtil.Enum(('EnterDoor',
  'RevealDoor',

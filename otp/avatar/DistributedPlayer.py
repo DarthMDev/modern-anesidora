@@ -8,7 +8,7 @@ import string
 from direct.task import Task
 from otp.otpbase import OTPLocalizer
 from otp.speedchat import SCDecoders
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from otp.avatar import DistributedAvatar
 import time
 from otp.avatar import Avatar, PlayerBase

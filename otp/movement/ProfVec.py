@@ -1,6 +1,6 @@
 from pandac.PandaModules import *
 from otp.movement.PyVec3 import PyVec3
-from direct.showbase.PythonUtil import startProfile
+from otp.otpbase.PythonUtil import startProfile
 from direct.ffi.FFIExternalObject import FFIExternalObject
 
 class NullClass:

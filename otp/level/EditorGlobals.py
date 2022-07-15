@@ -1,6 +1,6 @@
 """EditorGlobals module: contains global editor data"""
 
-from direct.showbase.PythonUtil import uniqueElements
+from otp.otpbase.PythonUtil import uniqueElements
 
 # levels should put themselves into the bboard under this posting
 # to assert themselves as the level to be edited by ~edit

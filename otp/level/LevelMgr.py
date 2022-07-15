@@ -1,6 +1,6 @@
 """LevelMgr module: contains the LevelMgr class"""
 
-from direct.showbase.PythonUtil import Functor
+from otp.otpbase.PythonUtil import Functor
 from . import LevelMgrBase
 
 class LevelMgr(LevelMgrBase.LevelMgrBase):

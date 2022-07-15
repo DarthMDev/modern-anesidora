@@ -2,7 +2,7 @@
    multiple FSMs"""
 
 from pandac.PandaModules import *
-from direct.showbase.PythonUtil import Functor
+from otp.otpbase.PythonUtil import Functor
 from direct.task import Task
 from toontown.distributed.ToontownMsgTypes import *
 from otp.otpbase import OTPGlobals

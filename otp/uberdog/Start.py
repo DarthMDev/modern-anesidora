@@ -31,7 +31,7 @@ print "Initializing the UberDog (Uber Distributed Object Globals server)..."
 
 from otp.uberdog.UberDogGlobal import *
 from otp.uberdog.UberDog import UberDog
-from direct.showbase.PythonUtil import *
+from otp.otpbase.PythonUtil import *
 
 uber.mdip = uber.config.GetString("msg-director-ip", "localhost")
 

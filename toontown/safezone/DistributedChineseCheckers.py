@@ -20,7 +20,7 @@ from direct.distributed.ClockDelta import *
 from otp.otpbase import OTPGlobals
 
 
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 
 class DistributedChineseCheckers(DistributedNode.DistributedNode):
     def __init__(self, cr):

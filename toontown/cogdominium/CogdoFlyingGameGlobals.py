@@ -1,4 +1,4 @@
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from panda3d.core import VBase4, Vec3, Point3
 from .CogdoUtil import VariableContainer, DevVariableContainer
 AI = VariableContainer()

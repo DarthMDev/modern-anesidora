@@ -3,7 +3,8 @@ from pandac.PandaModules import *
 from direct.distributed import DistributedObjectAI
 from direct.directnotify import DirectNotifyGlobal
 from otp.otpbase import OTPGlobals
-from direct.showbase import PythonUtil, GarbageReport, ContainerReport, MessengerLeakDetector
+from otp.otpbase import PythonUtil
+from direct.showbase import  GarbageReport, ContainerReport, MessengerLeakDetector
 from direct.showbase import ContainerLeakDetector
 from direct.showbase.PythonUtil import Functor, DelayedCall, formatTimeCompact
 #import fpformat

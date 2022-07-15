@@ -6,7 +6,7 @@ from direct.task import Task
 from .SCConstants import *
 from direct.interval.IntervalGlobal import *
 from .SCObject import SCObject
-from direct.showbase.PythonUtil import makeTuple
+from otp.otpbase.PythonUtil import makeTuple
 import types
 
 class SCMenu(SCObject, NodePath):

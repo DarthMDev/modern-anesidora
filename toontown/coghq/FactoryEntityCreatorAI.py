@@ -1,7 +1,7 @@
 """FactoryEntityCreatorAI module: contains the FactoryEntityCreatorAI class"""
 
 from otp.level import EntityCreatorAI
-from direct.showbase.PythonUtil import Functor
+from otp.otpbase.PythonUtil import Functor
 from . import DistributedBeanBarrelAI
 from . import DistributedButtonAI
 from . import DistributedCrateAI

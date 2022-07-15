@@ -13,7 +13,7 @@ from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import ToontownBattleGlobals
 import string
 from toontown.toon import Toon
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from toontown.suit import DistributedSuitPlanner
 from toontown.suit import DistributedBossCog
 from otp.otpbase import OTPGlobals

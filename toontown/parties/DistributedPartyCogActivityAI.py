@@ -4,7 +4,7 @@
 #
 # Purpose: Distributed controller for Party Cog "Pinata" Activity in the AI
 #===============================================================================
-from direct.showbase.PythonUtil import bound as clamp
+from otp.otpbase.PythonUtil import bound as clamp
 
 from toontown.toonbase import TTLocalizer
 

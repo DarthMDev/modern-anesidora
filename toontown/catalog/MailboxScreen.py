@@ -12,7 +12,7 @@ from toontown.toontowngui.TeaserPanel import TeaserPanel
 from toontown.parties.InviteVisual import InviteVisual
 from toontown.toon import GMUtils
 from . import CatalogItem
-from direct.showbase.PythonUtil import StackTrace
+from otp.otpbase.PythonUtil import StackTrace
 
 class MailboxScreen(DirectObject.DirectObject):
     """

@@ -8,7 +8,7 @@ import shutil
 import pprint
 import math
 from . import stats
-from direct.showbase.PythonUtil import *
+from otp.otpbase.PythonUtil import *
 
 filterIps = ['^206\.16', '^206\.18']
 filterIpsCompiled = list(map(re.compile, filterIps))

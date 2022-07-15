@@ -1,6 +1,6 @@
 """LevelMgrAI module: contains the LevelMgrAI class"""
 
-from direct.showbase.PythonUtil import Functor
+from otp.otpbase.PythonUtil import Functor
 from . import LevelMgrBase
 
 class LevelMgrAI(LevelMgrBase.LevelMgrBase):

@@ -10,7 +10,7 @@ from direct.fsm import State
 from direct.task import Task
 from direct.directnotify import DirectNotifyGlobal
 from toontown.building import BoardingPartyBase
-##from direct.showbase.PythonUtil import StackTrace
+##from otp.otpbase.PythonUtil import StackTrace
 
 # these are array indexs
 # since there are no structs

@@ -148,7 +148,7 @@ print("Initializing...")
 
 from otp.ai.AIBaseGlobal import *
 from toontown.ai import ToontownAIRepository
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 
 simbase.air = ToontownAIRepository.ToontownAIRepository(
     mdip, mdport,

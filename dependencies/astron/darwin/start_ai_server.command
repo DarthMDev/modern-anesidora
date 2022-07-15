@@ -10,14 +10,13 @@ export DISTRICT_NAME="Nutty River"
 export BASE_CHANNEL=401000000
 
 echo ===============================
-echo Starting Disney's Toontown Online AI server...
-echo ppython: "ppython"
-echo District name: $DISTRICT_NAME
-echo Base channel: $BASE_CHANNEL
-echo Max channels: $MAX_CHANNELS
-echo State Server: $STATESERVER
-echo Astron IP: $ASTRON_IP
-echo Event Logger IP: $EVENTLOGGER_IP
-echo ===============================
-export PYTHONPATH=dependencies/mac/lib:$PYTHONPATH
-ppython -m toontown.ai.AIStart 
+echo "Starting Disney's Toontown Online AI server..."
+echo 'ppython: "ppython"'
+echo "District name: $DISTRICT_NAME"
+echo "Base channel: $BASE_CHANNEL"
+echo "Max channels: $MAX_CHANNELS"
+echo "State Server: $STATESERVER"
+echo "Astron IP: $ASTRON_IP"
+echo "Event Logger IP: $EVENTLOGGER_IP"
+echo "==============================="
+python3.9 -m toontown.ai.AIStart 

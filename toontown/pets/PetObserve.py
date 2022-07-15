@@ -1,5 +1,5 @@
 from direct.directnotify import DirectNotifyGlobal
-from direct.showbase.PythonUtil import list2dict, Enum
+from otp.otpbase.PythonUtil import list2dict, Enum
 from toontown.pets import PetTricks
 import types
 

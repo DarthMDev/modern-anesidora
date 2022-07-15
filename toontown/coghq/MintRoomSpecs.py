@@ -1,6 +1,6 @@
 """MintRoomSpecs.py: contains table of mint room specs"""
 
-from direct.showbase.PythonUtil import invertDict
+from otp.otpbase.PythonUtil import invertDict
 from toontown.toonbase import ToontownGlobals
 from toontown.coghq import NullCogs
 from toontown.coghq import CashbotMintBoilerRoom_Battle00_Cogs

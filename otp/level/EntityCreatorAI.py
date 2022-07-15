@@ -5,7 +5,7 @@ from . import LogicGate
 from . import EditMgrAI
 from . import LevelMgrAI
 from . import ZoneEntityAI
-from direct.showbase.PythonUtil import Functor
+from otp.otpbase.PythonUtil import Functor
 
 # some useful constructor functions
 # ctor functions for entities must take

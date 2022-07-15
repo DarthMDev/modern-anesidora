@@ -1,5 +1,6 @@
 from pandac.PandaModules import *
-from direct.showbase.PythonUtil import Enum, invertDictLossless
+from otp.otpbase.PythonUtil import Enum
+from direct.showbase.PythonUtil import invertDictLossless
 import math
 from toontown.toonbase import ToontownGlobals
 

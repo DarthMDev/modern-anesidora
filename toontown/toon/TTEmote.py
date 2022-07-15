@@ -15,7 +15,7 @@ from otp.otpbase import OTPLocalizer
 from toontown.toonbase import TTLocalizer
 from otp.otpbase import OTPLocalizer
 import types
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from pandac.PandaModules import *
 from otp.avatar import Emote
 from direct.directnotify import DirectNotifyGlobal

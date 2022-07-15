@@ -5,7 +5,7 @@ The Toontown Uber Distributed Object Globals server.
 from pandac.PandaModules import *
 import time
 if __debug__:
-    from direct.showbase.PythonUtil import *
+    from otp.otpbase.PythonUtil import *
 
 from direct.directnotify.DirectNotifyGlobal import directNotify
 

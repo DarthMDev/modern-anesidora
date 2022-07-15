@@ -1,6 +1,6 @@
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.showbase.DirectObject import DirectObject
-from direct.showbase.PythonUtil import formatTimeExact
+from otp.otpbase.PythonUtil import formatTimeExact
 
 Settings = ScratchPad(
     DetectWindow = config.GetFloat('code-redemption-spam-detect-window', 30.), # minutes

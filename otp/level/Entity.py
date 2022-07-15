@@ -1,7 +1,7 @@
 """Entity.py: contains the Entity class"""
 
 from direct.showbase.DirectObject import DirectObject
-from direct.showbase.PythonUtil import lineInfo
+from otp.otpbase.PythonUtil import lineInfo
 import string
 from direct.directnotify import DirectNotifyGlobal
 

@@ -1,6 +1,7 @@
 """PetTricks.py"""
 
-from direct.showbase.PythonUtil import Enum, invertDictLossless
+from otp.otpbase.PythonUtil import Enum 
+from direct.showbase.PythonUtil import invertDictLossless
 from direct.interval.IntervalGlobal import *
 import types
 import random

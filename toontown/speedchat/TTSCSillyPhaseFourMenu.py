@@ -1,6 +1,6 @@
 ## Silly PhaseFour speedchat phrases ##
 
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from otp.speedchat.SCMenu import SCMenu
 from otp.speedchat.SCMenuHolder import SCMenuHolder
 from otp.speedchat.SCStaticTextTerminal import SCStaticTextTerminal

@@ -5,7 +5,7 @@ from otp.distributed.OtpDoGlobals import *
 from otp.distributed import OtpDoGlobals
 from toontown.distributed.ToontownInternalRepository import ToontownInternalRepository
 from panda3d.core import *
-from direct.showbase.PythonUtil import *
+from otp.otpbase.PythonUtil import *
 from otp.ai.AIMsgTypes import *
 from otp.ai import TimeManagerAI
 from otp.friends.AvatarFriendsManagerUD import AvatarFriendsManagerUD

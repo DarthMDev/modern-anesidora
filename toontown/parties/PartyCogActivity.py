@@ -11,7 +11,7 @@ from direct.interval.SoundInterval import SoundInterval
 from direct.interval.ActorInterval import ActorInterval
 from direct.interval.ProjectileInterval import ProjectileInterval
 from direct.distributed.ClockDelta import globalClockDelta
-from direct.showbase.PythonUtil import bound, lerp # bound = clamp function
+from otp.otpbase.PythonUtil import bound, lerp # bound = clamp function
 from direct.showbase.DirectObject import DirectObject
 
 from pandac.PandaModules import NodePath, Point3, TextNode

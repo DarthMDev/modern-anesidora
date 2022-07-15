@@ -7,7 +7,7 @@ from direct.directnotify import DirectNotifyGlobal
 from toontown.toonbase import TTLocalizer
 from toontown.pets import PetTricks
 from otp.otpbase import OTPLocalizer
-from direct.showbase.PythonUtil import lerp
+from otp.otpbase.PythonUtil import lerp
 
 FUDGE_FACTOR = 0.01
 

@@ -28,7 +28,7 @@ import random
 from . import HouseGlobals
 from . import CannonGlobals
 from toontown.ai import DatabaseObject
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from toontown.toonbase import ToontownGlobals
 from direct.distributed.PyDatagram import PyDatagram
 from direct.distributed.PyDatagramIterator import PyDatagramIterator

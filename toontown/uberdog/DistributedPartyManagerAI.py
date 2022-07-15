@@ -2,7 +2,7 @@ import random
 import sys
 import time
 
-from direct.showbase.PythonUtil import Functor
+from otp.otpbase.PythonUtil import Functor
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
 from direct.distributed.DistributedObjectGlobalAI import DistributedObjectGlobalAI
 from otp.distributed import OtpDoGlobals

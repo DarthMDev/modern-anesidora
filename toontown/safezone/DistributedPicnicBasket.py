@@ -14,7 +14,7 @@ from toontown.distributed import DelayDelete
 from toontown.toonbase.ToontownTimer import ToontownTimer
 
 from direct.task.Task import Task
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 
 from toontown.toon import ToonDNA
 

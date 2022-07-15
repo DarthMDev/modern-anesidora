@@ -1,7 +1,7 @@
 from . import RepairAvatars
 from . import DatabaseObject
 import time
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from toontown.toonbase import ToontownGlobals
 from toontown.pets import PetTraits, PetConstants
 from toontown.minigame import MinigameGlobals

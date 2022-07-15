@@ -171,7 +171,7 @@ class GuildDB(DBInterface):
                 self.createGuild(avId,True)
         except MySQLdb.IntegrityError as e:
             self.notify.warning("IntegrityError creating new guild for avId %s: %s.  Rolling back." % (avId,e))
-            from direct.showbase import PythonUtil
+            from otp.otpbase import PythonUtil
             self.notify.warning(str(PythonUtil.StackTrace()))
             self.db.rollback()
 
@@ -390,7 +390,7 @@ class GuildDB(DBInterface):
             return
         except MySQLdb.IntegrityError as e:
             self.notify.warning("IntegrityError adding avId %s to guild %s: %s.  Rolling back." % (avId,guildId,e))
-            from direct.showbase import PythonUtil
+            from otp.otpbase import PythonUtil
             self.notify.warning(str(PythonUtil.StackTrace()))
             self.db.rollback()
 

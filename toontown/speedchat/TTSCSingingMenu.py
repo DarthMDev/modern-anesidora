@@ -2,7 +2,7 @@
 TTSCSingingMenu.py: contains the TTSCSingingMenu class
 """
 
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from otp.speedchat.SCMenu import SCMenu
 from otp.speedchat.SCMenuHolder import SCMenuHolder
 from .TTSCSingingTerminal import TTSCSingingTerminal

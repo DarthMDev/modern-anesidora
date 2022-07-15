@@ -6,8 +6,8 @@ export DYLD_FRAMEWORK_PATH="Frameworks"
 
 # Get the user input:
 read -p "Username: " ttgUsername
-read -p "Gameserver (DEFAULT:  45.55.208.151): " TTG_GAMESERVER
-TTG_GAMESERVER=${TTG_GAMESERVER:-"45.55.208.151"}
+read -p "Gameserver (DEFAULT:  localhost): " TTG_GAMESERVER
+TTG_GAMESERVER=${TTG_GAMESERVER:-"localhost"}
 
 # Export the environment variables:
 export ttgUsername=$ttgUsername
@@ -21,4 +21,4 @@ echo "Username: $ttgUsername"
 echo "Gameserver: $TTG_GAMESERVER"
 echo "==============================="
 
-ppython -m toontown.toonbase.ToontownStart
+python3.9 -m toontown.toonbase.ToontownStart

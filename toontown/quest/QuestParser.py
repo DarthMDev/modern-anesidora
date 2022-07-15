@@ -19,7 +19,7 @@ from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
 from otp.speedchat import SpeedChatGlobals
 from toontown.ai import DistributedBlackCatMgr
-from direct.showbase import PythonUtil
+from otp.otpbase import PythonUtil
 from direct.interval.IntervalGlobal import *
 from panda3d.otp import CFReversed, CFSpeech, CFTimeout
 

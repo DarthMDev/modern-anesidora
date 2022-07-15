@@ -1,6 +1,6 @@
 """StageRoomSpecs.py: contains table of stage room specs"""
 
-from direct.showbase.PythonUtil import invertDict
+from otp.otpbase.PythonUtil import invertDict
 from toontown.toonbase import ToontownGlobals
 from toontown.coghq import NullCogs
 from toontown.coghq import LawbotOfficeOilRoom_Battle00_Cogs

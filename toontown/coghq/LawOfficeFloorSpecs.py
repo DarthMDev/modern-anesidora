@@ -1,6 +1,6 @@
 """LawOfficeFloorSpecs.py: contains table of lawoffice floor specs"""
 
-from direct.showbase.PythonUtil import invertDict
+from otp.otpbase.PythonUtil import invertDict
 from toontown.toonbase import ToontownGlobals
 from toontown.coghq import NullCogs
 from toontown.coghq import LabotOfficeFloor_01a_Cogs

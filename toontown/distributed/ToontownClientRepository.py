@@ -14,7 +14,7 @@ from direct.distributed.PyDatagramIterator import PyDatagramIterator
 from direct.task import Task
 from direct.fsm import ClassicFSM
 from direct.fsm import State
-from direct.showbase.PythonUtil import Functor, ScratchPad
+from otp.otpbase.PythonUtil import Functor, ScratchPad
 from direct.showbase.InputStateGlobal import inputState
 
 from otp.avatar import Avatar
@@ -858,7 +858,6 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
 
     def enterGameOff(self):
         OTPClientRepository.OTPClientRepository.enterGameOff(self)
-        assert self.allSubShardObjectsGone()
 
     ##### gameFSM: waitOnEnterResponses #####
 
@@ -1088,7 +1087,6 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
             self.notify.error(s)
         if isNotLive:
             self.notify.info('dumpAllSubShardObjects: doIds left: %s' % list(self.doId2do.keys()))
-        assert self.allSubShardObjectsGone()
 
     if __debug__:
         def allSubShardObjectsGone(self):
@@ -1120,7 +1118,6 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
             ToontownClientRepository.ClearInterestDoneEvent)
     # internal func, do not call
     def _tcrRemoveShardInterestDone(self, callback):
-        assert self.allSubShardObjectsGone()
         self.uberZoneInterest = None
         callback()
 

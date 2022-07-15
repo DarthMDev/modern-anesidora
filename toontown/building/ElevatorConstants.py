@@ -11,7 +11,7 @@ ELEVATOR_OFFICE = 5
 ELEVATOR_STAGE  = 6
 ELEVATOR_BB     = 7
 ELEVATOR_COUNTRY_CLUB   = 8 # country club cog golf kart / elevator
-
+ELEVATOR_FIELD = 9
 # Reasons for rejecting a toons
 REJECT_NOREASON = 0
 REJECT_SHUFFLE = 1
@@ -99,6 +99,13 @@ ElevatorData = {
                         "sfxVolume" : 1.0,
                         "collRadius": 4,
                         },    
+    ELEVATOR_FIELD : { "openTime"  : 0.5,
+                        "closeTime" : 0.5,
+                        "width"     : 3.5,
+                        "countdown" : bboard.get('elevatorCountdown',5.0),
+                        "sfxVolume" : 1.0,
+                        "collRadius": 5.6,
+                        },
     }
 
 TOON_BOARD_ELEVATOR_TIME = 1.0
