@@ -12,98 +12,99 @@ import functools
 from direct.fsm.FSM import FSM
 from toontown.toon import ToonDNA
 from toontown.estate.DistributedHouseAI import DistributedHouseAI
-from toontown.estate.GardenManagerAI import GardenManagerAI
 
-#Other classes from toontown school house
-class LoadHouseOperation(FSM):
-    def __init__(self, mgr, estate, index, avatar, callback):
-        FSM.__init__(self, 'LoadHouseOperation')
+#Other classes from toontown stride
+class LoadHouseFSM(FSM):
+    notify = DirectNotifyGlobal.directNotify.newCategory('LoadHouseFSM')
+
+    def __init__(self, mgr, estate, houseIndex, toon, callback):
+        FSM.__init__(self, 'LoadHouseFSM')
         self.mgr = mgr
         self.estate = estate
-        self.index = index
-        self.avatar = avatar
+        self.houseIndex = houseIndex
+        self.toon = toon
         self.callback = callback
+
         self.done = False
-        self.houseId = None
-        self.house = None
-        self.gender = None
 
     def start(self):
         # We have a few different cases here:
-        if self.avatar is None:
-            # Case #1: There isn't an avatar in that estate slot. Make a blank house.
+        if self.toon is None:
+            # Case #1: There isn't a Toon in that estate slot. Make a blank house.
+
             # Because this state completes so fast, we'll use taskMgr to delay
-            # it until the next iteration. This solves reentrancy problems.
-            taskMgr.doMethodLater(0.0, self.demand, 'makeBlankHouse-%s' % id(self), extraArgs=['MakeBlankHouse'])
+            # it until the next iteration. This solves re-entrancy problems.
+            taskMgr.doMethodLater(0.0, self.demand,
+                                  'makeBlankHouse-%s' % id(self),
+                                  extraArgs=['MakeBlankHouse'])
             return
 
-        style = ToonDNA.ToonDNA()
-        style.makeFromNetString(self.avatar.get('setDNAString')[0])
-        self.houseId = self.avatar.get('setHouseId', [0])[0]
-        self.gender = style.gender
-        if self.houseId == 0:
-            # Case #2: There is an avatar, but no setHouseId. Make a new house:
+        self.houseId = self.toon.get('setHouseId', [0])[0]
+        if self.houseId  == 0:
+            # Case #2: There is a Toon, but no setHouseId. Gotta make one.
             self.demand('CreateHouse')
         else:
-            # Case #3: Avatar with a setHouseId. Load it:
+            # Case #3: Toon with a setHouseId. Load it.
             self.demand('LoadHouse')
 
     def enterMakeBlankHouse(self):
         self.house = DistributedHouseAI(self.mgr.air)
-        self.house.setHousePos(self.index)
-        self.house.setColor(self.index)
+        self.house.setHousePos(self.houseIndex)
+        self.house.setColor(self.houseIndex)
         self.house.generateWithRequired(self.estate.zoneId)
-        self.estate.houses[self.index] = self.house
+        self.estate.houses[self.houseIndex] = self.house
         self.demand('Off')
 
     def enterCreateHouse(self):
-        self.mgr.air.dbInterface.createObject(self.mgr.air.dbId, self.mgr.air.dclassesByName['DistributedHouseAI'],
-                                              {'setName': [self.avatar['setName'][0]],
-                                               'setAvatarId': [self.avatar['avId']]}, self.__handleHouseCreated)
+        style = ToonDNA.ToonDNA()
+        style.makeFromNetString(self.toon['setDNAString'][0])
+        
+        self.mgr.air.dbInterface.createObject(
+            self.mgr.air.dbId,
+            self.mgr.air.dclassesByName['DistributedHouseAI'],
+            {
+                'setName' : [self.toon['setName'][0]],
+                'setAvatarId' : [self.toon['ID']],
+                'setGender': [0 if style.getGender() == 'm' else 1]
+            },
+            self.__handleCreate)
 
-    def __handleHouseCreated(self, houseId):
+    def __handleCreate(self, doId):
         if self.state != 'CreateHouse':
-            # This operation was likely aborted.
             return
 
         # Update the avatar's houseId:
-        av = self.mgr.air.doId2do.get(self.avatar['avId'])
+        av = self.mgr.air.doId2do.get(self.toon['ID'])
         if av:
-            av.b_setHouseId(houseId)
+            av.b_setHouseId(doId)
         else:
-            self.mgr.air.dbInterface.updateObject(self.mgr.air.dbId, self.avatar['avId'],
-                                                  self.mgr.air.dclassesByName['DistributedToonAI'],
-                                                  {'setHouseId': [houseId]})
+            self.mgr.air.dbInterface.updateObject(
+                self.mgr.air.dbId,
+                self.toon['ID'],
+                self.mgr.air.dclassesByName['DistributedToonAI'],
+                {'setHouseId': [doId]})
 
-        self.houseId = houseId
+        self.houseId = doId
         self.demand('LoadHouse')
 
     def enterLoadHouse(self):
         # Activate the house:
         self.mgr.air.sendActivate(self.houseId, self.mgr.air.districtId, self.estate.zoneId,
                                   self.mgr.air.dclassesByName['DistributedHouseAI'],
-                                  {'setHousePos': [self.index],
-                                   'setColor': [self.index],
-                                   'setName': [self.avatar['setName'][0]],
-                                   'setAvatarId': [self.avatar['avId']]})
+                                  {'setHousePos': [self.houseIndex],
+                                   'setColor': [self.houseIndex],
+                                   'setName': [self.toon['setName'][0]],
+                                   'setAvatarId': [self.toon['ID']]})
 
-        # Wait for the house to generate:
-        self.acceptOnce('generate-%d' % self.houseId, self.__handleHouseGenerated)
+        # Now we wait for the house to show up... We do this by hanging a messenger
+        # hook which the DistributedHouseAI throws once it spawns.
+        self.acceptOnce('generate-%d' % self.houseId, self.__gotHouse)
 
-    def __handleHouseGenerated(self, house):
-        # The house will need to be able to reference
-        # the estate for setting up gardens, so:
-        house.estate = self.estate
-
-        # Initialize our interior:
-        house.interior.gender = self.gender
-        #house.interior.start()
-
+    def __gotHouse(self, house):
         self.house = house
-        self.estate.houses[self.index] = self.house
-        #if config.GetBool('want-gardening', True):
-            #Have distributedestateai take care of it like tto
-            #self.house.createGardenManager()
+        house.initializeInterior()
+
+        self.estate.houses[self.houseIndex] = self.house
 
         self.demand('Off')
 
@@ -114,206 +115,19 @@ class LoadHouseOperation(FSM):
         self.done = True
         self.callback(self.house)
 
-
-class LoadEstateOperation(FSM):
-    def __init__(self, mgr, callback):
-        FSM.__init__(self, 'LoadEstateOperation')
-        self.mgr = mgr
-        self.callback = callback
-        self.estate = None
-        self.accId = None
-        self.zoneId = None
-        self.avIds = None
-        self.avatars = None
-        self.houseOperations = None
-        self.petOperations = None
-
-    def start(self, accId, zoneId):
-        self.accId = accId
-        self.zoneId = zoneId
-        self.demand('QueryAccount')
-
-    def enterQueryAccount(self):
-        self.mgr.air.dbInterface.queryObject(self.mgr.air.dbId, self.accId, self.__handleQueryAccount)
-
-    def __handleQueryAccount(self, dclass, fields):
-        if self.state != 'QueryAccount':
-            # This operation was likely aborted.
-            return
-
-        if dclass != self.mgr.air.dclassesByName['AccountAI']:
-            self.mgr.notify.warning('Account %d has non-account dclass %d!' % (self.accId, dclass))
-            self.demand('Failure')
-            return
-
-        self.accFields = fields
-        self.estateId = fields.get('ESTATE_ID', 0)
-        self.demand('QueryAvatars')
-
-    def enterQueryAvatars(self):
-        self.avIds = self.accFields.get('ACCOUNT_AV_SET', [0] * 6)
-        self.avatars = {}
-        for index, avId in enumerate(self.avIds):
-            if avId == 0:
-                self.avatars[index] = None
-                continue
-
-            self.mgr.air.dbInterface.queryObject(self.mgr.air.dbId, avId,
-                                                 functools.partial(self.__handleQueryAvatar, index=index))
-
-    def __handleQueryAvatar(self, dclass, fields, index):
-        if self.state != 'QueryAvatars':
-            # This operation was likely aborted.
-            return
-
-        if dclass != self.mgr.air.dclassesByName['DistributedToonAI']:
-            self.mgr.notify.warning(
-                'Account %d has avatar %d with non-Toon dclass %d!' % (self.accId, self.avIds[index], dclass))
-            self.demand('Failure')
-            return
-
-        fields['avId'] = self.avIds[index]
-        self.avatars[index] = fields
-        if len(self.avatars) == 6:
-            self.__gotAllAvatars()
-
-    def __gotAllAvatars(self):
-        # We have all of our avatars, so now we can handle the estate.
-        if self.estateId:
-            # We already have an estate, so let's load that:
-            self.demand('LoadEstate')
-        else:
-            # We don't yet have an estate, so let's make one:
-            self.demand('CreateEstate')
-
-    def enterCreateEstate(self):
-        # Create a blank estate object:
-        self.mgr.air.dbInterface.createObject(self.mgr.air.dbId, self.mgr.air.dclassesByName['DistributedEstateAI'], {},
-                                              self.__handleEstateCreated)
-
-    def __handleEstateCreated(self, estateId):
-        if self.state != 'CreateEstate':
-            # This operation was likely aborted.
-            return
-
-        self.estateId = estateId
-
-        # Store the new estate object on our account:
-        self.mgr.air.dbInterface.updateObject(self.mgr.air.dbId, self.accId, self.mgr.air.dclassesByName['AccountAI'],
-                                              {'ESTATE_ID': estateId})
-
-        self.demand('LoadEstate')
-
-    def enterLoadEstate(self):
-        # Set the estate fields:
-        fields = {'setSlot%dToonId' % i: (avId,) for i, avId in enumerate(self.avIds)}
-
-        # Activate the estate:
-        self.mgr.air.sendActivate(self.estateId, self.mgr.air.districtId, self.zoneId,
-                                  self.mgr.air.dclassesByName['DistributedEstateAI'], fields)
-
-        # Wait for the estate to generate:
-        self.acceptOnce('generate-%d' % self.estateId, self.__handleEstateGenerated)
-
-    def __handleEstateGenerated(self, estate):
-        # Get the estate:
-        self.estate = estate
-
-        # For keeping track of pets in this estate:
-        self.estate.pets = []
-
-        # Map the owner to the estate:
-        ownerId = self.mgr.getOwnerFromZone(self.estate.zoneId)
-        owner = self.mgr.air.doId2do.get(ownerId)
-        if owner:
-            self.mgr.toon2estate[owner] = self.estate
-
-        # Set the estate's ID list:
-        self.estate.b_setIdList(self.avIds)
-        #start the garden process
-        self.estate.gardenInit(self.avIds)
-
-
-        # Load houses:
-        self.demand('LoadHouses')
-
-    def exitLoadEstate(self):
-        self.ignore('generate-%d' % self.estateId)
-
-    def enterLoadHouses(self):
-        self.houseOperations = []
-        for houseIndex in range(6):
-            houseOperation = LoadHouseOperation(self.mgr, self.estate, houseIndex, self.avatars[houseIndex],
-                                                self.__handleHouseLoaded)
-            self.houseOperations.append(houseOperation)
-            houseOperation.start()
-
-    def __handleHouseLoaded(self, house):
-        if self.state != 'LoadHouses':
-            # We aren't loading houses, so we probably got cancelled. Therefore,
-            # the only sensible thing to do is simply destroy the house.
-            house.requestDelete()
-            return
-
-        # A house operation just finished! Let's see if all of them are done:
-        if all(houseOperation.done for houseOperation in self.houseOperations):
-            # Load our pets:
-            self.demand('LoadPets')
-
-    def enterLoadPets(self):
-        self.petOperations = []
-        for houseIndex in range(6):
-            av = self.avatars[houseIndex]
-            if av and av['setPetId'][0] != 0:
-                petOperation = LoadPetOperation(self.mgr, self.estate, av, self.__handlePetLoaded)
-                self.petOperations.append(petOperation)
-                petOperation.start()
-
-        if not self.petOperations:
-            taskMgr.doMethodLater(0, lambda: self.demand('Finished'), 'no-pets', extraArgs=[])
-
-    def __handlePetLoaded(self, pet):
-        if self.state != 'LoadPets':
-            pet.requestDelete()
-            return
-
-        # A pet operation just finished! Let's see if all of them are done:
-        if all(petOperation.done for petOperation in self.petOperations):
-            self.demand('Finished')
-
-    def enterFinished(self):
-        self.petOperations = []
-        self.callback(True)
-
-    def enterFailure(self):
-        self.cancel()
-        self.callback(False)
-
-    def cancel(self):
-        if self.estate:
-            self.estate.destroy()
-            self.estate = None
-
-        self.demand('Off')
-
-
-class LoadPetOperation(FSM):
+class LoadPetFSM(FSM):
     def __init__(self, mgr, estate, toon, callback):
         FSM.__init__(self, 'LoadPetFSM')
         self.mgr = mgr
         self.estate = estate
         self.toon = toon
         self.callback = callback
+
         self.done = False
-        self.petId = 0
 
     def start(self):
-        if type(self.toon) == dict:
-            self.petId = self.toon['setPetId'][0]
-        else:
-            self.petId = self.toon.getPetId()
-
-        if self.petId not in self.mgr.air.doId2do:
+        self.petId = self.toon['setPetId'][0]
+        if not self.petId in self.mgr.air.doId2do:
             self.mgr.air.sendActivate(self.petId, self.mgr.air.districtId, self.estate.zoneId)
             self.acceptOnce('generate-%d' % self.petId, self.__generated)
         else:
@@ -325,9 +139,218 @@ class LoadPetOperation(FSM):
         self.demand('Off')
 
     def enterOff(self):
-        self.ignore('generate-%d' % self.petId)
         self.done = True
         self.callback(self.pet)
+
+
+class LoadEstateFSM(FSM):
+    def __init__(self, mgr, callback):
+        FSM.__init__(self, 'LoadEstateFSM')
+        self.mgr = mgr
+        self.callback = callback
+
+        self.estate = None
+
+    def start(self, accountId, zoneId):
+        self.accountId = accountId
+        self.zoneId = zoneId
+        self.demand('QueryAccount')
+
+    def enterQueryAccount(self):
+        self.mgr.air.dbInterface.queryObject(self.mgr.air.dbId, self.accountId,
+                                             self.__gotAccount)
+
+    def __gotAccount(self, dclass, fields):
+        if self.state != 'QueryAccount':
+            return # We must have aborted or something...
+
+        if dclass != self.mgr.air.dclassesByName['AccountAI']:
+            self.mgr.notify.warning('Account %d has non-account dclass %d!' %
+                                    (self.accountId, dclass))
+            self.demand('Failure')
+            return
+
+        self.accountFields = fields
+
+        self.estateId = fields.get('ESTATE_ID', 0)
+        self.demand('QueryToons')
+
+    def enterQueryToons(self):
+        self.toonIds = self.accountFields.get('ACCOUNT_AV_SET', [0]*6)
+        self.toons = {}
+
+        for index, toonId in enumerate(self.toonIds):
+            if toonId == 0:
+                self.toons[index] = None
+                continue
+            self.mgr.air.dbInterface.queryObject(
+                self.mgr.air.dbId, toonId,
+                functools.partial(self.__gotToon, index=index))
+
+    def __gotToon(self, dclass, fields, index):
+        if self.state != 'QueryToons':
+            return # We must have aborted or something...
+
+        if dclass != self.mgr.air.dclassesByName['DistributedToonAI']:
+            self.mgr.notify.warning('Account %d has avatar %d with non-Toon dclass %d!' %
+                                    (self.accountId, self.toonIds[index], dclass))
+            self.demand('Failure')
+            return
+
+        fields['ID'] = self.toonIds[index]
+        self.toons[index] = fields
+        if len(self.toons) == 6:
+            self.__gotAllToons()
+
+    def __gotAllToons(self):
+        # Okay, we have all of our Toons, now we can proceed with estate!
+        if self.estateId:
+            # We already have an estate, load it!
+            self.demand('LoadEstate')
+        else:
+            # We don't have one yet, make one!
+            self.demand('CreateEstate')
+
+    def enterCreateEstate(self):
+        # We have to ask the DB server to construct a blank estate object...
+        self.mgr.air.dbInterface.createObject(
+            self.mgr.air.dbId,
+            self.mgr.air.dclassesByName['DistributedEstateAI'],
+            {},
+            self.__handleEstateCreate)
+
+    def __handleEstateCreate(self, estateId):
+        if self.state != 'CreateEstate':
+            return # We must have aborted or something...
+        self.estateId = estateId
+        self.demand('StoreEstate')
+
+    def enterStoreEstate(self):
+        # store the estate in account
+        # congrats however wrote this for forgetting it!
+        
+        self.mgr.air.dbInterface.updateObject(
+            self.mgr.air.dbId,
+            self.accountId,
+            self.mgr.air.dclassesByName['AccountAI'],
+            {'ESTATE_ID': self.estateId},
+            {'ESTATE_ID': 0},
+            self.__handleStoreEstate)
+            
+    def __handleStoreEstate(self, fields):
+        if fields:
+            self.notify.warning("Failed to associate Estate %d with account %d, loading anyway." % (self.estateId, self.accountId))
+            
+        self.demand('LoadEstate')
+
+    def enterLoadEstate(self):
+        # Activate the estate:
+        fields = {}
+        for i, toon in enumerate(self.toonIds):
+            fields['setSlot%dToonId' % i] = (toon,)
+            
+        self.mgr.air.sendActivate(self.estateId, self.mgr.air.districtId, self.zoneId,
+                                  self.mgr.air.dclassesByName['DistributedEstateAI'], fields)
+
+        # Now we wait for the estate to show up... We do this by hanging a messenger
+        # hook which the DistributedEstateAI throws once it spawns.
+        self.acceptOnce('generate-%d' % self.estateId, self.__gotEstate)
+
+    def __gotEstate(self, estate):
+        self.estate = estate
+        estate.pets = []
+
+        # Gotcha! Now we need to load houses:
+        self.demand('LoadHouses')
+
+    def exitLoadEstate(self):
+        self.ignore('generate-%d' % self.estateId)
+
+    def enterLoadHouses(self):
+        self.houseFSMs = []
+
+        for houseIndex in range(6):
+            fsm = LoadHouseFSM(self.mgr, self.estate, houseIndex,
+                               self.toons[houseIndex], self.__houseDone)
+            self.houseFSMs.append(fsm)
+            fsm.start()
+
+    def __houseDone(self, house):
+        if self.state != 'LoadHouses':
+            # We aren't loading houses, so we probably got cancelled. Therefore,
+            # the only sensible thing to do is simply destroy the house.
+            house.requestDelete()
+            return
+
+        # A houseFSM just finished! Let's see if all of them are done:
+        if all(houseFSM.done for houseFSM in self.houseFSMs):
+            self.demand('LoadPets')
+
+    def enterLoadPets(self):
+        self.petFSMs = []
+        for houseIndex in range(6):
+            toon = self.toons[houseIndex]
+            if toon and toon['setPetId'][0] != 0:
+                fsm = LoadPetFSM(self.mgr, self.estate, toon, self.__petDone)
+                self.petFSMs.append(fsm)
+                fsm.start()
+
+        if not self.petFSMs:
+            taskMgr.doMethodLater(0, lambda: self.demand('Finished'), 'nopets', extraArgs=[])
+
+    def __petDone(self, pet):
+        if self.state != 'LoadPets':
+            pet.requestDelete()
+            return
+
+        # A petFSM just finished! Let's see if all of them are done:
+        if all(petFSM.done for petFSM in self.petFSMs):
+            self.demand('Finished')
+
+    def enterFinished(self):
+        self.callback(True)
+
+    def enterFailure(self):
+        self.cancel()
+
+        self.callback(False)
+
+    def cancel(self):
+        if self.estate:
+            self.estate.destroy()
+            self.estate = None
+
+        self.demand('Off')
+
+
+
+class LoadPetFSM(FSM):
+    def __init__(self, mgr, estate, toon, callback):
+        FSM.__init__(self, 'LoadPetFSM')
+        self.mgr = mgr
+        self.estate = estate
+        self.toon = toon
+        self.callback = callback
+
+        self.done = False
+
+    def start(self):
+        self.petId = self.toon['setPetId'][0]
+        if not self.petId in self.mgr.air.doId2do:
+            self.mgr.air.sendActivate(self.petId, self.mgr.air.districtId, self.estate.zoneId)
+            self.acceptOnce('generate-%d' % self.petId, self.__generated)
+        else:
+            self.__generated(self.mgr.air.doId2do[self.petId])
+
+    def __generated(self, pet):
+        self.pet = pet
+        self.estate.pets.append(pet)
+        self.demand('Off')
+
+    def enterOff(self):
+        self.done = True
+        self.callback(self.pet)
+
 TELEPORT_TO_OWNER_ONLY = 0
 
 class EstateManagerAI(DistributedObjectAI.DistributedObjectAI):
@@ -390,70 +413,40 @@ class EstateManagerAI(DistributedObjectAI.DistributedObjectAI):
     ## Zone allocation and enter code
     ## -----------------------------------------------------------
 
-    def getEstateZone(self, avId, name):
-        #credit to Toontown School House
-        # Thank you name, very cool!
+    def getEstateZone(self, avId):
+        # Credit to Toontown Stride
         senderId = self.air.getAvatarIdFromSender()
         accId = self.air.getAccountIdFromSender()
-        senderAv = self.air.doId2do.get(senderId)
-        if not senderAv:
+
+        toon = self.air.doId2do.get(senderId)
+        if not toon:
             self.air.writeServerEvent('suspicious', senderId, 'Sent getEstateZone() but not on district!')
             return
 
-        # If an avId has been provided, then the sender wants to visit a friend.
-        # In this case, we do not need to load the estate, we only need to check
-        # to see if it already exists.
+        # If there's an avId included, then the Toon is interested in visiting a
+        # friend. We do NOT load the estate, we simply see if it's already up...
         if avId and avId != senderId:
             av = self.air.doId2do.get(avId)
             if av and av.dclass == self.air.dclassesByName['DistributedToonAI']:
-                estate = self.toon2estate.get(av)
+                estate = self._lookupEstate(av)
                 if estate:
-                    # Found an estate!
+                    # Yep, there it is!
                     avId = estate.owner.doId
                     zoneId = estate.zoneId
-                    self._mapToEstate(senderAv, estate)
-
-                    # In case the sender is teleporting from their estate
-                    # to another estate, we want to unload their estate.
-                    self._unloadEstate(senderAv)
-
-                    if senderAv and senderAv.getPetId() != 0:
-                        pet = self.air.doId2do.get(senderAv.getPetId())
-                        if pet:
-                            self.acceptOnce(self.air.getAvatarExitEvent(senderAv.getPetId()), self.__handleLoadPet,
-                                            extraArgs=[estate, senderAv])
-                            pet.requestDelete()
-                        else:
-                            self.__handleLoadPet(estate, senderAv)
-
-                    # Now we want to send the sender to the estate.
-                    if hasattr(senderAv, 'enterEstate'):
-                        senderAv.enterEstate(avId, zoneId)
-
+                    self._mapToEstate(toon, estate)
+                    self._unloadEstate(toon) # In case they're doing estate->estate TP.
                     self.sendUpdateToAvatarId(senderId, 'setEstateZone', [avId, zoneId])
 
-            # We weren't able to find the given avId at an estate, that's pretty sad.
+            # Bummer, couldn't find avId at an estate...
             self.sendUpdateToAvatarId(senderId, 'setEstateZone', [0, 0])
             return
 
-        # Otherwise, the sender wants to go to their own estate.
-        estate = getattr(senderAv, 'estate', None)
+        # The Toon definitely wants to go to his own estate...
+
+        estate = getattr(toon, 'estate', None)
         if estate:
-            # The sender already has an estate loaded, so let's send them there.
-            self._mapToEstate(senderAv, senderAv.estate)
-
-            if senderAv and senderAv.getPetId() != 0:
-                pet = self.air.doId2do.get(senderAv.getPetId())
-                if pet:
-                    self.acceptOnce(self.air.getAvatarExitEvent(senderAv.getPetId()), self.__handleLoadPet,
-                                    extraArgs=[estate, senderAv])
-                    pet.requestDelete()
-                else:
-                    self.__handleLoadPet(estate, senderAv)
-
-            if hasattr(senderAv, 'enterEstate'):
-                senderAv.enterEstate(senderId, estate.zoneId)
-
+            # They already have an estate loaded, so let's just return it:
+            self._mapToEstate(toon, toon.estate)
             self.sendUpdateToAvatarId(senderId, 'setEstateZone', [senderId, estate.zoneId])
 
             # If a timeout is active, cancel it:
@@ -463,18 +456,19 @@ class EstateManagerAI(DistributedObjectAI.DistributedObjectAI):
 
             return
 
-        if getattr(senderAv, 'loadEstateOperation', None):
+        if getattr(toon, 'loadEstateFSM', None):
             # We already have a loading operation underway; ignore this second
             # request since the first operation will setEstateZone() when it
             # finishes anyway.
             return
 
         zoneId = self.air.allocateZone()
-        self.zone2owner[zoneId] = avId
+
+
 
         def estateLoaded(success):
             if success:
-                senderAv.estate = senderAv.loadEstateOperation.estate
+                senderAv.estate = senderAv.loadEstateFSM.estate
                 senderAv.estate.owner = senderAv
                 self._mapToEstate(senderAv, senderAv.estate)
                 if hasattr(senderAv, 'enterEstate'):
@@ -482,7 +476,7 @@ class EstateManagerAI(DistributedObjectAI.DistributedObjectAI):
 
                 self.sendUpdateToAvatarId(senderId, 'setEstateZone', [senderId, zoneId])
             else:
-                # Estate loading failed. Sad!
+                # Estate loading failed??!
                 self.sendUpdateToAvatarId(senderId, 'setEstateZone', [0, 0])
 
                 # Might as well free up the zoneId as well.
@@ -491,16 +485,12 @@ class EstateManagerAI(DistributedObjectAI.DistributedObjectAI):
 
             senderAv.loadEstateOperation = None
 
-        self.acceptOnce(self.air.getAvatarExitEvent(senderAv.doId), self.__handleUnexpectedExit, extraArgs=[senderAv])
+        self.acceptOnce(self.air.getAvatarExitEvent(senderAv.doId), self._unloadEstate, extraArgs=[senderAv])
 
-        if senderAv and senderAv.getPetId() != 0:
-            pet = self.air.doId2do.get(senderAv.getPetId())
-            if pet:
-                self.acceptOnce(self.air.getAvatarExitEvent(senderAv.getPetId()), self.__handleLoadEstate,
-                                extraArgs=[senderAv, estateLoaded, accId, zoneId])
-                pet.requestDelete()
-                return
-        self.__handleLoadEstate(senderAv, estateLoaded, accId, zoneId)
+
+        self.zone2owner[zoneId] = avId
+        senderAv.loadEstateOperation = LoadEstateFSM(self, estateLoaded)
+        senderAv.loadEstateOperation.start()
 
     def getAvEnterEvent(self):
         return 'avatarEnterEstate'
@@ -1080,80 +1070,51 @@ class EstateManagerAI(DistributedObjectAI.DistributedObjectAI):
         self.sendUpdate("stopAprilFools",[])
 
 
-#credit to toontown school house
 
-    def __handleLoadEstate(self, av, callback, accId, zoneId):
-        self._unmapFromEstate(av)
-        av.loadEstateOperation = LoadEstateOperation(self, callback)
-        av.loadEstateOperation.start(accId, zoneId)
+    # Credit to Toontown Stride
 
-    def _unloadEstate(self, av):
-        if getattr(av, 'estate', None):
-            estate = av.estate
-            avId = estate.owner.doId
-            zoneId = estate.zoneId
+    def _unloadEstate(self, toon):
+        if getattr(toon, 'estate', None):
+            estate = toon.estate
             if estate not in self.estate2timeout:
-                self.estate2timeout[estate] = taskMgr.doMethodLater(HouseGlobals.CLEANUP_DELAY_AFTER_BOOT,
-                              PythonUtil.Functor(self._cleanupEstate, avId, zoneId),
-                              "cleanupEstate-"+str(avId))
-            # Send warning:
-            self._sendToonsToPlayground(av.estate, 0)
+                self.estate2timeout[estate] = \
+                    taskMgr.doMethodLater(HouseGlobals.BOOT_GRACE_PERIOD,
+                                          self._cleanupEstate,
+                                          estate.uniqueName('emai-cleanup-task'),
+                                          extraArgs=[estate])
+            self._sendToonsToPlayground(toon.estate, 0) # This is a warning only...
 
-        if getattr(av, 'loadEstateOperation', None):
-            self.air.deallocateZone(av.loadEstateOperation.zoneId)
-            av.loadEstateOperation.cancel()
-            av.loadEstateOperation = None
+        if getattr(toon, 'loadEstateFSM', None):
+            self.air.deallocateZone(toon.loadEstateFSM.zoneId)
+            toon.loadEstateFSM.cancel()
+            toon.loadEstateFSM = None
 
-        if av and hasattr(av, 'exitEstate') and hasattr(av, 'isInEstate') and av.isInEstate():
-            av.exitEstate()
+        self.ignore(self.air.getAvatarExitEvent(toon.doId))
 
-        if av and av.getPetId() != 0:
-            self.ignore(self.air.getAvatarExitEvent(av.getPetId()))
-            pet = self.air.doId2do.get(av.getPetId())
-            if pet:
-                pet.requestDelete()
+    def _mapToEstate(self, toon, estate):
+        self._unmapFromEstate(toon)
+        self.estate2toons.setdefault(estate, []).append(toon)
+        self.toon2estate[toon] = estate
 
-        self.ignore(self.air.getAvatarExitEvent(av.doId))
+        if hasattr(toon, 'enterEstate'):
+            toon.enterEstate(estate.owner.doId, estate.zoneId)
 
-    def _mapToEstate(self, av, estate):
-        self._unmapFromEstate(av)
-        self.estate[av.doId] = estate
-        self.estate2toons.setdefault(estate, []).append(av)
-        if av not in self.toon2estate:
-            self.toon2estate[av] = estate
-
-        self.zone2toons.setdefault(estate.zoneId, []).append(av.doId)
-    def _unmapFromEstate(self, av):
-        estate = self.toon2estate.get(av)
+    def _unmapFromEstate(self, toon):
+        estate = self.toon2estate.get(toon)
         if not estate:
-            return
+             return
+        del self.toon2estate[toon]
 
         try:
-            del self.estate[av.doId]
-        except KeyError:
-            pass
-
-        del self.toon2estate[av]
-        try:
-            self.estate2toons[estate].remove(av)
-        except (KeyError, ValueError):
-            pass
-
-        try:
-            self.zone2toons[estate.zoneId].remove(av.doId)
+            self.estate2toons[estate].remove(toon)
         except (KeyError, ValueError):
             pass
         
+        if hasattr(toon, 'exitEstate'):
+            toon.exitEstate()
+        
     def _sendToonsToPlayground(self, estate, reason):
         for toon in self.estate2toons.get(estate, []):
-            self.sendUpdateToAvatarId(toon.doId, 'sendAvToPlayground', [toon.doId, reason])
+            self.sendUpdateToAvatarId(toon.doId, 'sendAvToPlayground',
+                                      [toon.doId, reason])
 
-    def __handleLoadPet(self, estate, av):
-        petOperation = LoadPetOperation(self, estate, av, self.__handlePetLoaded)
-        self.petOperations.append(petOperation)
-        petOperation.start()
-
-    def __handlePetLoaded(self, _):
-        # A pet operation just finished! Let's see if all of them are done:
-        if all(petOperation.done for petOperation in self.petOperations):
-            self.petOperations = []

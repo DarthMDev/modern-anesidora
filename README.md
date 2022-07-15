@@ -8,5 +8,5 @@ This is a modernized collection of various source code for the game. It is compa
  1. Galaxy-  Founder,  Team Leader
  2. Rocket -  Contributor
  3. DarthAnonymous1 - Contributor
- 4. Toontown School House - Used various code from them.
+ 4. Toontown Stride - Used various code from them.
  5. Satire6- releasing the original Anesidora source code
