@@ -25,9 +25,7 @@ class DistCogdoCraneAI(DistributedObjectAI.DistributedObjectAI, FSM.FSM):
         self.request('Free')
 
     def d_setState(self, state, avId):
-        self.sendUpdate('setState', [
-            state,
-            avId])
+        self.sendUpdate('setState', [state, avId])
 
     def enterOff(self):
         pass
