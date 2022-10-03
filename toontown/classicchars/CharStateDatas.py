@@ -2,12 +2,13 @@
 Contains the various state datas available to
 the classic character NPC's found in safezones
 """
-from pandac.PandaModules import *
+from panda3d.core import *
 from direct.interval.IntervalGlobal import *
 from direct.distributed.ClockDelta import *
 from direct.fsm import StateData
 from direct.directnotify import DirectNotifyGlobal
 from otp.otpbase.PythonUtil import *
+from direct.showbase.PythonUtil import reduceAngle, closestDestAngle
 from direct.task import Task
 from . import CCharPaths
 from toontown.toonbase import ToontownGlobals
