@@ -1,5 +1,5 @@
 #!/bin/sh
-cd ..
+cd ../..
 
 MAX_CHANNELS=999999
 STATE_SERVER=4002

@@ -1,6 +1,6 @@
 #!/bin/sh
-cd ../astron/darwin
+cd ../../dependencies/astron
 
 # This assumes that your astrond build is located in the
 # "astron/darwin" directory.
-./astrond-arm --loglevel info ../config/astrond.yml
+./astrond-darwin-arm --loglevel info ./config/cluster.yml
