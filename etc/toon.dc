@@ -135,6 +135,7 @@ from toontown.estate import DistributedFurnitureManager/AI
 from toontown.estate import DistributedFurnitureItem/AI
 from toontown.estate import DistributedBank/AI
 from toontown.estate import DistributedCloset/AI
+from toontown.estate import DistributedTrunk/AI
 from toontown.estate import DistributedPhone/AI
 from toontown.effects import DistributedFireworkShow/AI
 from toontown.estate import DistributedFireworksCannon/AI
@@ -542,7 +543,15 @@ dclass DistributedToon: DistributedPlayer {
   setMaxClothes(uint32 = 10) required ownrecv db;
   setClothesTopsList(uint8array clothesTopsList = {}) required ownrecv db;
   setClothesBottomsList(uint8array clothesBottomsList = {}) required ownrecv db;
-
+  setMaxAccessories(uint32 = 0) required ownrecv db;
+  setHatList(uint8[] = []) required ownrecv db;
+  setGlassesList(uint8[] = []) required ownrecv db;
+  setBackpackList(uint8[] = []) required ownrecv db;
+  setShoesList(uint8[] = []) required ownrecv db;
+  setHat(uint8 = 0, uint8 = 0, uint8 = 0) required broadcast db ownrecv;
+  setGlasses(uint8 = 0, uint8 = 0, uint8 = 0) required broadcast db ownrecv;
+  setBackpack(uint8 = 0, uint8 = 0, uint8 = 0) required broadcast db ownrecv;
+  setShoes(uint8 = 0, uint8 = 0, uint8 = 0) required broadcast db ownrecv;
   setGardenSpecials(gardenSpecial []) required ownrecv db airecv;
 
   // The AI uses this to tell the toon how much earned experience he
@@ -2921,7 +2930,12 @@ dclass DistributedCloset: DistributedFurnitureItem {
   // Server tells all clients how to clothe the current customer
   setCustomerDNA(uint32 avId, blob dna) broadcast ram;
 };
-
+dclass DistributedTrunk : DistributedCloset {
+  setState(uint8, uint32, uint32, string, uint8[], uint8[], uint8[], uint8[]) broadcast ram;
+  removeItem(uint8, uint8, uint8, uint8) airecv clsend;
+  setDNA(uint8, uint8, uint8, uint8, uint8, uint8, uint8, uint8, uint8, uint8, uint8, uint8, int8, uint8) airecv clsend;
+  setCustomerDNA(uint32, uint8, uint8, uint8, uint8, uint8, uint8, uint8, uint8, uint8, uint8, uint8, uint8, uint8) broadcast ram;
+};
 dclass DistributedPhone: DistributedFurnitureItem {
   // Phones adjust their scale to accomodate a toon, then keep that
   // same scale for a while.
@@ -3844,8 +3858,7 @@ dclass TTFriendsManager: DistributedObject {
   goingOffline(uint32 avId);
 
   getToonDetails(uint32) clsend;
-  friendDetails(uint32 avId, int8 invIndex, LocalInventory[] inv, int16 hp, int16 maxHp, uint32 shard,
-                uint32 hood, blob dna, uint32uint8array friends = {});
+  friendDetails(uint32, blob, uint16[], int16, int16, uint32, uint32, blob, blob, int8[], uint32uint8array = {});
 
   getPetInfo(uint32) clsend;
   petInfo(uint32, uint32, string, uint32, uint32, uint16/1000[], PetTrait[], int8[], uint32);

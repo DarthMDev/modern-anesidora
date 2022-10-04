@@ -620,56 +620,11 @@ class DistributedHouseAI(DistributedObjectAI.DistributedObjectAI):
 
         return extracted
 
-    def placeStarterGarden(self):
-        if not config.GetBool('want-gardening', True):
-            return
 
-        if not self.estate:
-            return
 
-        av = self.air.doId2do.get(self.getAvatarId())
-        if av is None:
-            return
 
-        if av.getGardenStarted():
-            self.notify.warning('Avatar %s tried to start their garden twice!' % self.getAvatarId())
-            return
 
-        # Set the avatar's garden to started:
-        av.b_setGardenStarted(1)
-
-        # Create the GardenManagerAI:
-        self.gardenManager = GardenManagerAI(self.air, self.estate)
-        self.gardenManager.loadGarden(av.doId)
-
-    def createGardenManager(self):
-        if not config.GetBool('want-gardening', True):
-            return
-
-        if not self.estate:
-            return
-
-        if not self.getAvatarId():
-            return
-
-        av = self.air.doId2do.get(self.getAvatarId())
-        if av is not None:
-            if av.getGardenStarted():
-                self.gardenManager = GardenManagerAI(self.air, self.estate)
-                self.gardenManager.loadGarden(av.doId)
-
-            return
-
-        def __gotOwner(dclass, fields, self=self):
-            if dclass != self.air.dclassesByName['DistributedToonAI']:
-                return
-
-            gardenStarted = fields['setGardenStarted'][0]
-            if gardenStarted:
-                self.gardenManager = GardenManagerAI(self.air, self.estate)
-                self.gardenManager.loadGarden(self.getAvatarId())
-
-        self.air.dbInterface.queryObject(self.air.dbId, self.getAvatarId(), __gotOwner)
+  
 
     def addWindow(self, item):
         # Called when a new window item has been purchased, this

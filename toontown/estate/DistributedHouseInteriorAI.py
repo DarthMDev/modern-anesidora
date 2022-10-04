@@ -85,21 +85,3 @@ class DistributedHouseInteriorAI(DistributedObjectAI.DistributedObjectAI):
                     str(self.__dict__.get('zoneId', '?'))+' '+message)
 
 
-    def start(self):
-        return
-        if self.house.getAvatarId() == 0:
-            # Blank houses do not need interiors.
-            return
-
-        # Generate the furniture manager:
-        #self.furnitureManager = DistributedFurnitureManagerAI(self.air, self.house, self)
-        #self.furnitureManager.setOwnerId(self.house.getAvatarId())
-        #self.furnitureManager.setOwnerName(self.house.getName())
-       # self.furnitureManager.setInteriorId(self.doId)
-       # self.furnitureManager.generateWithRequired(self.zoneId)
-
-        # We either need to load existing furniture, or create new furniture if none exists:
-        #if self.furnitureManager.getNumItems() == 0:
-         #   self.createInterior()
-       # else:
-        #    self.furnitureManager.loadFurniture()

@@ -1616,3 +1616,4 @@ AnimPropTypes = Enum(("Unknown",
 
 MaxCarryLimit = 80
 ALLOWED_FIELD_OFFICES = ['s', 'l']
+MAX_NUM_OF_TOONS = 6

@@ -1274,7 +1274,7 @@ class CatalogScreen(DirectFrame):
     def __makeFFlist(self):
         for familyMember in base.cr.avList:
             if familyMember.id != base.localAvatar.doId:
-                newFF = (familyMember.id, familyMember.name, NametagGroup.CCNonPlayer)
+                newFF = (familyMember.id, familyMember._name, NametagGroup.CCNonPlayer)
                 self.ffList.append(newFF)
         for friendPair in base.localAvatar.friendsList:
             friendId, flags = friendPair

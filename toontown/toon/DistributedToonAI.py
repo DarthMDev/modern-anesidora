@@ -18,6 +18,7 @@ from direct.task import Task
 from toontown.catalog import CatalogItemList
 from toontown.catalog import CatalogItem
 from otp.otpbase import PythonUtil
+from direct.showbase.PythonUtil import union
 from direct.distributed.ClockDelta import *
 from toontown.toonbase.ToontownGlobals import *
 import types
@@ -363,7 +364,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI,
             messenger.send('avatarExited', [self])
         if simbase.wantPets:
             if self.isInEstate():
-                print("ToonAI - Exit estate toonId:%s" % (self.doId))
+                self.notify.debug("ToonAI - Exit estate toonId:%s" % (self.doId))
                 self.exitEstate()
             if self.zoneId != ToontownGlobals.QuietZone:
                 # simulate a zone change for the benefit of the pets
