@@ -2,18 +2,19 @@
 @author: Schell Games
 3-10-2010
 """
+from enum import IntEnum
 import math
 
 from direct.showbase import PythonUtil
 
-from pandac.PandaModules import VBase4
+from panda3d.core import VBase4
 
 from toontown.minigame import MazeData
 
 TempMazeFile = "phase_4/models/minigames/maze_3player"
 TempMazeData = MazeData.mazeData[TempMazeFile]
 
-GameActions = PythonUtil.Enum((
+GameActions = IntEnum("GameActions", (
         "Unlock",
         "EnterDoor",
         "RevealLock",

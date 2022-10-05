@@ -142,7 +142,8 @@ class DistCogdoCraneGame(DistCogdoLevelGame, CogdoCraneGameBase):
         # want to use Plane.compareTo(), not Plane.__hash__(), to make
         # the comparison.
         threshold = 0.1
-        planes.sort(lambda p1, p2: p1.compareTo(p2, threshold))
+       # planes.sort(lambda p1, p2: p1.compareTo(p2, threshold))
+        planes.sort()
         lastPlane = None
         for plane in planes:
             if lastPlane == None or plane.compareTo(lastPlane, threshold) != 0:

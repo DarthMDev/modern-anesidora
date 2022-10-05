@@ -3,9 +3,10 @@ ToonBase module: defines constants that are global across Toontown, and
 may have meaning to several classes.
 """
 
+from enum import IntEnum
 from . import TTLocalizer
 from otp.otpbase.OTPGlobals import *
-from otp.otpbase.PythonUtil import Enum
+
 from direct.showbase.PythonUtil import invertDict
 
 from panda3d.core import BitMask32, Vec4
@@ -1606,7 +1607,7 @@ gmMagicWordList = [
 
 NewsPageScaleAdjust = 0.85
 # Prop types for the new animating props
-AnimPropTypes = Enum(("Unknown",
+AnimPropTypes = IntEnum('AnimPropTypes', ("Unknown",
                       "Hydrant",
                       "Mailbox",
                       "Trashcan",

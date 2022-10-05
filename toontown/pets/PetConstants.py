@@ -1,5 +1,5 @@
-from pandac.PandaModules import *
-from otp.otpbase.PythonUtil import Enum
+from enum import IntEnum
+from panda3d.core import *
 from direct.showbase.PythonUtil import invertDictLossless
 import math
 from toontown.toonbase import ToontownGlobals
@@ -70,7 +70,7 @@ GettingAttentionGoalScaleDur = 7.
 
 # these are general, high-level moods that directly correspond to the sets
 # of body animations (walk, neutral) that we have for the pets
-AnimMoods = Enum('EXCITED, SAD, NEUTRAL')
+AnimMoods = IntEnum('AnimMoods', ('EXCITED', 'SAD', 'NEUTRAL'))
 
 # movement speeds
 FwdSpeed = 12.

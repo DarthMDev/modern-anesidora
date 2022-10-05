@@ -12,9 +12,10 @@
 
 # python imports
 import random
+from enum import IntEnum
 
 # panda imports
-from otp.otpbase.PythonUtil import Enum
+
 from direct.gui.DirectGui import DirectFrame, DGG
 from panda3d.core import Vec2, VBase4, VBase4F
 from panda3d.core import CardMaker
@@ -36,7 +37,7 @@ DEFAULT_RADIUS_RATIO = 0.05
 MAP_RESOLUTION = 320
 
 # Defines the function used to clear a portion of the mask
-MazeRevealType = Enum((
+MazeRevealType = IntEnum('MazeRevealType', (
     "SmoothCircle",
     "HardCircle",
     "Square",

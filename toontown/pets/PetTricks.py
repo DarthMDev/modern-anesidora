@@ -1,6 +1,6 @@
 """PetTricks.py"""
 
-from otp.otpbase.PythonUtil import Enum 
+from enum import IntEnum
 from direct.showbase.PythonUtil import invertDictLossless
 from direct.interval.IntervalGlobal import *
 import types
@@ -9,8 +9,8 @@ import random
 # ONLY ADD TRICKS JUST BEFORE 'BALK'
 # BALK is not really a trick; it's what the pets do if they don't do the trick
 # correctly. Keep it at the end of the Enum.
-Tricks = Enum('JUMP, BEG, PLAYDEAD, ROLLOVER, BACKFLIP, DANCE, SPEAK, BALK,')
-assert Tricks.BALK == len(Tricks)-1
+Tricks = IntEnum('Tricks', ('JUMP, BEG, PLAYDEAD, ROLLOVER, BACKFLIP, DANCE, SPEAK, BALK'))
+assert Tricks.BALK.value == len(Tricks)
 
 # these are what aptitude 0. and 1. map to in an actual random range of [0,1]
 NonHappyMinActualTrickAptitude = .1

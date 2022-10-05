@@ -1,5 +1,4 @@
-from pandac.PandaModules import *
-from otp.otpbase.PythonUtil import Enum
+from panda3d.core import *
 import random
 
 def zoneNum2str(num):

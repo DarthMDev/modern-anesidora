@@ -5,10 +5,13 @@
 #################################################################
 
 #################################################################
+# General Modules
+from enum import IntEnum
+#################################################################
 # Direct Specific Modules
 #################################################################
 #from direct.directnotify import DirectNotifyGlobal
-from otp.otpbase.PythonUtil import Enum, SingletonError
+from otp.otpbase.PythonUtil import SingletonError
 #from direct.task import Task
 
 #################################################################
@@ -28,11 +31,11 @@ from toontown.racing import RaceManagerAI
 #################################################################
 # Global Enumerations and Constants
 #################################################################
-Month = Enum('JANUARY, FEBRUARY, MARCH, APRIL, \
+Month = IntEnum('Month', ('JANUARY, FEBRUARY, MARCH, APRIL, \
               MAY, JUNE, JULY, AUGUST, SEPTEMBER, \
-              OCTOBER, NOVEMBER, DECEMBER', 1)
+              OCTOBER, NOVEMBER, DECEMBER', 1))
 
-Day = Enum('MONDAY, TUESDAY, WEDNESDAY, THURSDAY, \
+Day = IntEnum('Day', ('MONDAY, TUESDAY, WE)DNESDAY, THURSDAY, \
             FRIDAY, SATURDAY, SUNDAY')
 
 Holidays = {

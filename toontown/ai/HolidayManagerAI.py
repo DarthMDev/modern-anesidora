@@ -4,13 +4,13 @@
 #################################################################
 import datetime
 from datetime import timedelta
-
+from enum import IntEnum
 
 #################################################################
 # Direct Specific Modules
 #################################################################
 from direct.directnotify import DirectNotifyGlobal
-from otp.otpbase.PythonUtil import Enum, SingletonError
+from otp.otpbase.PythonUtil import SingletonError
 from direct.task import Task
 
 #################################################################
@@ -56,12 +56,12 @@ import time
 #################################################################
 # Global Enumerations and Constants
 #################################################################
-Month = Enum('JANUARY, FEBRUARY, MARCH, APRIL, \
-              MAY, JUNE, JULY, AUGUST, SEPTEMBER, \
-              OCTOBER, NOVEMBER, DECEMBER', 1)
+Month = IntEnum('Month', ('JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', \
+              'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', \
+              'OCTOBER', 'NOVEMBER', 'DECEMBER'))
 
-Day = Enum('MONDAY, TUESDAY, WEDNESDAY, THURSDAY, \
-            FRIDAY, SATURDAY, SUNDAY')
+Day = IntEnum('Day', 'MONDAY TUESDAY WEDNESDAY THURSDAY \
+            FRIDAY SATURDAY SUNDAY')
 
 OncelyMultipleStartHolidays = (ToontownGlobals.COLD_CALLER_INVASION,
                                ToontownGlobals.BEAN_COUNTER_INVASION,
@@ -103,7 +103,7 @@ TestServerHolidayTimeDelta = timedelta(days = TestServerHolidayDaysAhead)
 # TODO figure out how to make this work for more than just oncely holidays
 OriginalHolidays = {
     ToontownGlobals.HYDRANT_ZERO_HOLIDAY: 
-    { 'startAndEndPairs':       [datetime.datetime( 2010, Month.MAY, 5, 8, 0), # firstMoveArmUp1
+    { 'startAndEndPairs':       [datetime.datetime( 2010, Month.MAY.value, 5, 8, 0), # firstMoveArmUp1
                                           datetime.datetime( 2010, Month.JUNE,   12,  11, 55),],
       'phaseDates': [datetime.datetime( 2010, Month.MAY, 9,  11, 0o5), # firstMoveStruggle
                      datetime.datetime( 2010, Month.MAY,    13,  11, 0o5), # firstMoveArmUp2
