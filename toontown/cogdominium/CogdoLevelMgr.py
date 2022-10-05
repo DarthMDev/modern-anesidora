@@ -1,6 +1,7 @@
 from otp.level import LevelMgr
-from otp.otpbase.PythonUtil import Functor
+from direct.showbase.PythonUtil import Functor
 from toontown.toonbase import ToontownGlobals
 
 class CogdoLevelMgr(LevelMgr.LevelMgr):
+    """This class manages editable cogdo game attributes"""
     pass

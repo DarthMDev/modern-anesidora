@@ -1,233 +1,195 @@
-from direct.directnotify import DirectNotifyGlobal
-from toontown.cogdominium.DistCogdoGameAI import DistCogdoGameAI
+"""
+@author: Schell Games
+3-16-2010
+"""
+import random
+
+from direct.task.Task import Task
+
+from toontown.minigame.DistributedMinigameAI import DistributedMinigameAI
+from toontown.minigame.DistributedMinigameAI import EXITED, EXPECTED, JOINED, READY
+
 from . import CogdoMazeGameGlobals
-from direct.distributed.ClockDelta import *
-from direct.task import Timer
-from toontown.battle import BattleBase
-from toontown.building.ElevatorConstants import *
+from .CogdoMazeGameGlobals import CogdoMazeLockInfo
 
-ALL_ABOARD_LAG = 3.7
+from direct.fsm.FSM import FSM
+class DistCogdoMazeGameAI(DistributedMinigameAI, FSM):
+    """
+    Maze Cogdominium Minigame AI Distributed Object!
+    """
+    notify = directNotify.newCategory("DistCogdoMazeGameAI")
 
-BASE_TOON_UP = 10
-JOKE_TOON_UP = 5
+    TIMER_EXPIRED_TASK_NAME = "CogdoMazeGameTimerExpired"
 
-class DistCogdoMazeGameAI(DistCogdoGameAI):
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistCogdoMazeGameAI")
-    delayIntro = BattleBase.ELEVATOR_T + ElevatorData[ELEVATOR_FIELD]['openTime']
+    def __init__(self, air, id):
+        try:
+            self.DistMazeCogdoGameAI_initialized
+        except:
+            self.DistMazeCogdoGameAI_initialized = 1
+            DistributedMinigameAI.__init__(self, air, id)
 
-    def __init__(self, air):
-        DistCogdoGameAI.__init__(self, air)
-        self.numSuits = (0,0,0)
-        self.timer = Timer.Timer()
-        self.doorRevealed = False
-        self.toonsInDoor = []
-        self.bosses = {}
-        self.fastMinions = {}
-        self.slowMinions = {}
-        self.suitTypes = [self.bosses, self.fastMinions, self.slowMinions]
-        self.numJokes = {}
+            self.toonsInDoor = []
 
-    def announceGenerate(self):
-        DistCogdoGameAI.announceGenerate(self)
-        self.setupSuitsAI()
+    def delete(self):
+        DistributedMinigameAI.delete(self)
+        taskMgr.remove(self.taskName(DistCogdoMazeGameAI.TIMER_EXPIRED_TASK_NAME))
 
-    def setupSuitsAI(self):
-        bossHp = CogdoMazeGameGlobals.SuitData[0]['hp']
-        fastMiniHp = CogdoMazeGameGlobals.SuitData[1]['hp']
-        slowMiniHp = CogdoMazeGameGlobals.SuitData[2]['hp']
+    def _initLocks(self):
+        self.locks = {}
 
-        serialNum = 0
-        for i in range(self.numSuits[0]):
-            self.bosses[serialNum] = bossHp
-            serialNum += 1
-        for i in range(self.numSuits[1]):
-            self.fastMinions[serialNum] = fastMiniHp
-            serialNum += 1
-        for i in range(self.numSuits[2]):
-            self.slowMinions[serialNum] = slowMiniHp
-            serialNum += 1
+        data = CogdoMazeGameGlobals.TempMazeData
+        width = data["width"]
+        height = data["height"]
 
-    def setNumSuits(self, num):
-        self.numSuits = num
+        positions = self._getLockPositions(data, width, height)
 
-    def getNumSuits(self):
-        return self.numSuits
+        for i in range(len(self.avIdList)):
+            self._addLock(self.avIdList[i], positions[i][0], positions[i][1])
 
-    def requestUseGag(self, x, y, h, timestamp):
-        avId = self.air.getAvatarIdFromSender()
-        self.sendUpdate('toonUsedGag', [avId, x, y, h, globalClockDelta.getRealNetworkTime()])
+    def _getLockPositions(self, data, width, height):
+        """
+        Splits the maze into 4, shuffles the quadrants, and picks random spots
+        to place the locks.
 
-    def requestSuitHitByGag(self, suitType, suitNum):
-        hitAI = self.hitSuitAI(suitType, suitNum)
-        if not hitAI:
-            self.notify.warning('Cannot hit suit!')
-            return
-        avId = self.air.getAvatarIdFromSender()
-        self.sendUpdate('suitHitByGag', [avId, suitType, suitNum])
+        @return: list of (tileX, tileY) tuples with the positions of the locks
+        """
+        halfWidth = int(width / 2)
+        halfHeight = int(height / 2)
 
-    def requestHitBySuit(self, suitType, suitNum, nettime):
-        avId = self.air.getAvatarIdFromSender()
-        av = self.air.doId2do.get(avId)
-        if av:
-            lostHp = CogdoMazeGameGlobals.SuitData[suitType]['toonDamage'] * self.getDifficulty() * 10
-            av.takeDamage(lostHp)
-            networkTime = globalClockDelta.getRealNetworkTime()
-            self.sendUpdate('toonHitBySuit', [avId, suitType, suitNum, networkTime])
-            if av.getHp() < 1:
-                self.toonWentSad(avId)
+        # 1. Split the maze into 4 quadrants
+        quadrants = [
+            # (x0, y0, x1, y1)
+            (0, 0, halfWidth - 2, halfHeight - 2),
+            (halfWidth + 2, 0, width - 1, halfHeight - 2),
+            (0, halfHeight + 2, halfWidth - 2, height - 1),
+            (halfWidth + 2, halfHeight + 2, width - 1, height - 1)
+            ]
 
-    def requestHitByDrop(self):
-        avId = self.air.getAvatarIdFromSender()
-        av = self.air.doId2do.get(avId)
-        if av:
-            lostHp = CogdoMazeGameGlobals.DropDamage
-            av.takeDamage(lostHp)
-            self.sendUpdate('toonHitByDrop', [avId])
+        # 2. Shuffle the quadrant order
+        random.shuffle(quadrants)
 
-    def requestPickUp(self, pickupNum):
-        avId = self.air.getAvatarIdFromSender()
-        av = self.air.doId2do.get(avId)
-        if av:
-            now = globalClockDelta.getRealNetworkTime()
+        positions = []
 
-            if avId in self.numJokes:
-                self.numJokes[avId] += 1
-            else:
-                self.numJokes[avId] = 1
+        # 3. pick random available spots, populate list
+        for i in range(len(self.avIdList)):
+            quadrant = quadrants[i]
+            tX = -1
+            tY = -1
 
-            self.sendUpdate('pickUp', [avId, pickupNum, now])
+            while tX < 0 or data["collisionTable"][tY][tX] == 1:
+                tX = random.randint(quadrant[0], quadrant[2])
+                tY = random.randint(quadrant[1], quadrant[3])
 
-    def requestGag(self, coolerIndex):
-        avId = self.air.getAvatarIdFromSender()
-        self.sendUpdate('hasGag', [avId, globalClockDelta.getRealNetworkTime()])
+            positions.append((tX, tY))
 
-    def hitSuitAI(self, suitType, suitNum):
-        cogKey = None
-        for cogNum in list(self.suitTypes[suitType].keys()):
-            if cogNum == suitNum:
-                cogKey = cogNum
-                break
-        if cogKey == None:
-            return 0
-        cogHp = self.suitTypes[suitType][cogKey]
-        cogHp -= 1
-        self.suitTypes[suitType][cogKey] = cogHp
-        if cogHp <= 0:
-            del self.suitTypes[suitType][cogKey]
-        return 1
+        return positions
 
-    def handleStart(self):
-        taskMgr.add(self.__checkGameDone, self.taskName('check-game-done'))
-        taskMgr.add(self.__checkPlayersTask, self.taskName('check-players-task'))
-        serverDelay = 1.0
-        self.timer.startCallback(CogdoMazeGameGlobals.SecondsUntilTimeout + serverDelay, self.__handleGameOver)
-        taskMgr.doMethodLater(serverDelay, self.clientCountdown, self.taskName('client_countdown'))
-        taskMgr.add(self.__timeWarningTask, self.taskName('time-warning-task'))
+    def _addLock(self, toonId, tX, tY):
+        lock = CogdoMazeLockInfo(toonId, tX, tY)
+        self.locks[toonId] = lock
 
-    def clientCountdown(self, task):
-        self.doAction(CogdoMazeGameGlobals.GameActions.Countdown, 0)
-        return task.done
+    # getter (required broadcast ram)
+    def getLocks(self):
+        toonIds = []
+        spawnPointsX = []
+        spawnPointsY = []
+        for lock in list(self.locks.values()):
+            toonIds.append(lock.toonId)
+            spawnPointsX.append(lock.tileX)
+            spawnPointsY.append(lock.tileY)
 
-    def __handleGameOver(self):
-        self.removeAll()
-        self.gameDone(failed=True)
+        return toonIds, spawnPointsX, spawnPointsY
 
-    def __checkGameDone(self, task):
-        bossesLeft = self.bosses
-        if len(bossesLeft) == 0:
-            self.timer.stop()
-            self.doAction(CogdoMazeGameGlobals.GameActions.OpenDoor, 0)
-            self.__startTimeout()
-            return task.done
-        return task.again
+    def setExpectedAvatars(self, avIds):
+        DistributedMinigameAI.setExpectedAvatars(self, avIds)
 
-    def __startTimeout(self):
-        self.timer.startCallback(CogdoMazeGameGlobals.SecondsUntilGameEnds, self.__handleTimeout)
+        self._initLocks()
 
-    def __handleTimeout(self):
-        for toon in self.toons:
-            if not toon in self.toonsInDoor:
-                self.killToon(toon)
-        self.removeAll()
-        self.gameDone()
+    def areAllPlayersReady(self):
+        return False not in [(state == READY) for state in list(self.stateDict.values())]
 
-    def __timeWarningTask(self, task):
-        if self.timer.getT() <= CogdoMazeGameGlobals.SecondsForTimeAlert:
-            self.doAction(CogdoMazeGameGlobals.GameActions.TimeAlert, 0)
-            return task.done
-        return task.again
+    def setGameStart(self, timestamp):
+        DistributedMinigameAI.setGameStart(self, timestamp)
 
-    def killToon(self, avId):
-        av = self.air.doId2do.get(avId)
-        if av:
-            if av.getHp() > 0:
-                av.takeDamage(av.getHp())
-            self.toonWentSad(avId)
-        self.__playerDisconnected(avId)
+        self.enterPlay()
 
-    def __checkPlayersTask(self, task):
-        for toonId in self.toons:
-            toon = self.air.doId2do.get(toonId)
-            if not toon:
-                self.__playerDisconnected(toonId)
-        return task.again
+    def timerExpiredTask(self, task):
+        self.notify.debugCall()
 
-    def __playerDisconnected(self, avId):
-        self.sendUpdate('setToonDisconnect', [avId])
-        self.toons.pop(self.toons.index(avId))
-        if len(self.toons) == 0:
-            self.removeAll()
-            self.gameDone(failed=True)
+        self.gameOver()
+        self.d_broadcastDoAction(CogdoMazeGameGlobals.GameActions.GameOver)
 
-    def doAction(self, action, data):
-        self.sendUpdate('doAction', [action, data, globalClockDelta.getRealNetworkTime()])
+        return Task.done
 
+    def gameOver(self):
+        self.exitPlay()
+        DistributedMinigameAI.gameOver(self)
+
+    def isDoorLocked(self):
+        return True in [lock.locked for lock in list(self.locks.values())]
+
+    def areAllToonsInDoor(self):
+        return len(self.avIdList) == len(self.toonsInDoor)
+
+    def validateSenderId(self, senderId):
+        if senderId in self.avIdList:
+            return True
+
+        # TODO: Report suspicious event
+        return False
+
+#===============================================================================
+# DISTRIBUTED
+#===============================================================================
+
+    # airecv clsend
     def requestAction(self, action, data):
-        Globals = CogdoMazeGameGlobals
-        avId = self.air.getAvatarIdFromSender()
-        if action == Globals.GameActions.RevealDoor:
-            if not self.doorRevealed:
-                self.doAction(action, avId)
-                self.doorRevealed = True
-            else:
-                self.notify.warning('Toon tried to reveal door but it\'s already revealed! Ignoring.')
-        elif action == Globals.GameActions.EnterDoor:
-            if not avId in self.toonsInDoor:
-                self.doAction(action, avId)
-                self.toonsInDoor.append(avId)
-                self.toonUpToon(avId)
-            else:
-                self.notify.warning('Toon tried to enter into door but already entered! Ignoring.')
-                return
+        self.notify.debugCall()
 
-            if len(self.toonsInDoor) >= len(self.toons):
-                self.__handleAllAboard()
+        senderId = self.air.getAvatarIdFromSender()
+        if not self.validateSenderId(senderId):
+            return False
+
+        if action == CogdoMazeGameGlobals.GameActions.Unlock:
+            if self.locks[senderId].locked:
+                self.locks[senderId].locked = False
+
+                self.d_broadcastDoAction(action, senderId)
+            else:
+                pass # TODO: Suspicious event...
+
+        elif action == CogdoMazeGameGlobals.GameActions.EnterDoor:
+            if senderId not in self.toonsInDoor:
+                self.toonsInDoor.append(senderId)
+                self.d_broadcastDoAction(action, senderId)
+
+                if self.areAllToonsInDoor():
+                    self.gameOver()
+                    self.d_broadcastDoAction(CogdoMazeGameGlobals.GameActions.GameOver)
+            else:
+                pass # TODO: Suspicious event...
+
+        elif action == CogdoMazeGameGlobals.GameActions.RevealDoor:
+            self.d_broadcastDoAction(action, senderId)
+
+        elif action == CogdoMazeGameGlobals.GameActions.RevealLock:
+            self.d_broadcastDoAction(action, data)
+
         else:
-            self.notify.warning('Client requested unknown action \'%s\'' %action)
+            pass # TODO: Probably report a suspicious event too!
 
-    def __handleAllAboard(self):
-        if len(self.toonsInDoor) != len(self.toons):
-            self.notify.warning('__handleAllAboard expect all toons aboard!')
-            return
-        self.removeAll()
-        taskMgr.doMethodLater(ALL_ABOARD_LAG, lambda t: self.gameDone(), self.taskName('all-aboard-delay'))
+    def d_broadcastDoAction(self, action, data=0):
+        self.sendUpdate("doAction", [action, data])
 
-    def toonUpToon(self, toonId):
-        if toonId in self.toonsInDoor:
-            toon = self.air.doId2do.get(toonId)
-            if toon:
-                val = min(BASE_TOON_UP + JOKE_TOON_UP * self.numJokes.get(toonId, 0), toon.getMaxHp())
-                toon.toonUp(val)
+#===============================================================================
+# FINITE STATE MACHINE
+#===============================================================================
 
-    def removeAll(self):
-        taskMgr.remove(self.taskName('check-game-done'))
-        taskMgr.remove(self.taskName('check-players-task'))
-        taskMgr.remove(self.taskName('time-warning-task'))
-        taskMgr.remove(self.taskName('all-aboard-delay'))
-        self.timer.stop()
+    def enterPlay(self):
+        taskMgr.doMethodLater(CogdoMazeGameGlobals.GameDuration,
+            self.timerExpiredTask,
+            self.taskName(DistCogdoMazeGameAI.TIMER_EXPIRED_TASK_NAME))
 
-    def disable(self):
-        DistCogdoGameAI.disable(self)
-        self.removeAll()
-
+    def exitPlay(self):
+        taskMgr.remove(self.taskName(DistCogdoMazeGameAI.TIMER_EXPIRED_TASK_NAME))
 

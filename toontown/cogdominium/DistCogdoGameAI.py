@@ -1,105 +1,201 @@
-from direct.directnotify import DirectNotifyGlobal
+from direct.directnotify.DirectNotifyGlobal import directNotify
+from direct.distributed.ClockDelta import globalClockDelta
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
-from direct.distributed.ClockDelta import *
-from . import CogdoGameConsts
+from direct.fsm import ClassicFSM, State
+from otp.ai.Barrier import Barrier
+
+class SadCallbackToken:
+    pass
 
 class DistCogdoGameAI(DistributedObjectAI):
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistCogdoGameAI")
-    delayIntro = .1
+    notify = directNotify.newCategory("DistCogdoGameAI")
 
-    def __init__(self, air):
+    MaxPlayers = 4
+
+    def __init__(self, air, interior):
         DistributedObjectAI.__init__(self, air)
-        air.cogdoGame = self
-        self.interiorId = 0
-        self.exteriorZone = 0
-        self.difficultyOverrides = [2147483647, -1]
-        self.requests = {}
-        self.toons = []
+        self._interior = interior
 
-    def announceGenerate(self):
-        DistributedObjectAI.announceGenerate(self)
-        self.finishEvent = self.uniqueName('CogdoMazeGameDone')
-        self.gameOverEvent = self.uniqueName('CogdoMazeGameLose')
-        self.resetRequests()
+        self.loadFSM = ClassicFSM.ClassicFSM(
+            'DistCogdoGameAI.loaded',
+            [State.State('NotLoaded',
+                         self.enterNotLoaded,
+                         self.exitNotLoaded,
+                         ['Loaded']),
+             State.State('Loaded',
+                         self.enterLoaded,
+                         self.exitLoaded,
+                         ['NotLoaded'])],
+            # Initial state
+            'NotLoaded',
+            # Final state
+            'NotLoaded')
 
-    def d_startIntro(self):
-        self.sendUpdate('setVisible', [])
-        taskMgr.doMethodLater(self.delayIntro, self.__startIntro, self.taskName('CogdoStartIntro'))
+        self.fsm = ClassicFSM.ClassicFSM(
+            'DistCogdoGameAI',
+            [State.State('Intro',
+                         self.enterIntro,
+                         self.exitIntro,
+                         ['Game']),
+             State.State('Game',
+                         self.enterGame,
+                         self.exitGame,
+                         ['Finish']),
+             State.State('Finish',
+                         self.enterFinish,
+                         self.exitFinish,
+                         ['Off']),
+             State.State('Off',
+                         self.enterOff,
+                         self.exitOff,
+                         ['Intro'])],
+            # Initial state
+            'Off',
+            # Final state
+            'Off')
 
-    def getInterior(self):
-        return self.air.doId2do.get(self.interiorId)
-
-    def resetRequests(self):
-        interior = self.getInterior()
-        toons = interior.getToons()[0]
-        for toon in toons:
-            self.requests[toon] = 0
-
-    def __startIntro(self, task = None):
-        self.sendUpdate('setIntroStart', [])
-        if task:
-            return task.done
-
-    def setAvatarReady(self):
-        avId = self.air.getAvatarIdFromSender()
-        self.requests[avId] = 1
-        if not avId in self.toons: self.toons.append(avId)
-        if self.allToonsReady():
-            self.handleStart()
-            self.sendUpdate('setGameStart', [globalClockDelta.getRealNetworkTime()])
-
-    def allToonsReady(self):
-        interior = self.getInterior()
-        toons = interior.getToons()[0]
-        for toon in toons:
-            if self.requests.get(toon, 0) == 0:
-                return 0
-        return 1
-
-    def handleStart(self):
-        pass
-
-    def setInteriorId(self, id):
-        self.interiorId = id
+    def generate(self):
+        DistributedObjectAI.generate(self)
+        self._sadToken2callback = {}
+        self._interior.addGameFSM(self.fsm)
 
     def getInteriorId(self):
-        return self.interiorId
+        return self._interior.doId
 
-    def setExteriorZone(self, zone):
-        self.exteriorZone = zone
+    def getToonIds(self):
+        toonIds = []
+        for toonId in self._interior.getToons()[0]:
+            if toonId:
+                toonIds.append(toonId)
+        return toonIds
 
-    def getExteriorZone(self):
-        return self.exteriorZone
+    def getNumPlayers(self):
+        return len(self.getToonIds())
 
-    def setDifficultyOverrides(self, difficulty, exteriorDifficulty):
-        self.difficultyOverrides = [difficulty, exteriorDifficulty]
+    def requestDelete(self):
+        self.fsm.requestFinalState()
+        self.loadFSM.requestFinalState()
+        self._sadToken2callback = None
+        DistributedObjectAI.requestDelete(self)
 
-    def getDifficultyOverrides(self):
-        return self.difficultyOverrides
+    def delete(self):
+        self._interior.removeGameFSM(self.fsm)
+        self._interior = None
+        self.fsm = None
+        self.loadFSM = None
+        DistributedObjectAI.delete(self)
 
-    def toonWentSad(self, avId):
-        self.sendUpdate('setToonSad', [avId])
+    def start(self):
+        self.loadFSM.enterInitialState()
+        self.fsm.enterInitialState()
 
-    def setToons(self, toons):
-        self.toons = toons
+        self.loadFSM.request('Loaded')
+        self.fsm.request('Intro')
 
-    def disable(self):
-        DistributedObjectAI.disable(self)
-        self.air.cogdoGame = None
-        del self.air.cogdoGame
+    def markStartTime(self):
+        self._startTime = globalClock.getRealTime()
 
-    def gameDone(self, failed=False):
-        if not failed:
-            if len(self.toons) == 0:
-                failed = True
+    def getStartTime(self):
+        return self._startTime
 
-        if not failed:
-            messenger.send(self.finishEvent, [self.toons])
-        else:
-            messenger.send(self.gameOverEvent)
+    def markFinishTime(self):
+        self._finishTime = globalClock.getRealTime()
 
-    def getDifficulty(self):
-        return CogdoGameConsts.getDifficulty(self.getSafezoneId())
+    def getFinishTime(self):
+        return self._finishTime
 
-    def getSafezoneId(self):
-        return CogdoGameConsts.getSafezoneId(self.exteriorZone)
+    ########################
+
+    # game class must override these methods if anything needs to be done when a toon
+    # leaves the game. game class should call down
+
+    def handleToonDisconnected(self, toonId):
+        self.notify.debug('handleToonDisconnected: %s' % toonId)
+
+    def handleToonWentSad(self, toonId):
+        self.notify.debug('handleToonWentSad: %s' % toonId)
+        callbacks = list(self._sadToken2callback.values())
+        for callback in callbacks:
+            callback(toonId)
+
+    ########################
+
+    # use these methods to get notification when a toon goes sad
+    def _registerSadCallback(self, callback):
+        token = SadCallbackToken()
+        self._sadToken2callback[token] = callback
+        return token
+
+    def _unregisterSadCallback(self, token):
+        self._sadToken2callback.pop(token)
+
+
+    def enterNotLoaded(self):
+        pass
+    def exitNotLoaded(self):
+        pass
+
+    def enterLoaded(self):
+        pass
+    def exitLoaded(self):
+        pass
+
+
+    def enterOff(self):
+        pass
+    def exitOff(self):
+        pass
+
+    def enterSetup(self):
+        pass
+    def exitSetup(self):
+        pass
+
+    def enterIntro(self):
+        self.sendUpdate('setIntroStart', [])
+        self._introBarrier = Barrier('intro', uniqueName('intro'), self.getToonIds(), 1<<20,
+                                     doneFunc=self._handleIntroBarrierDone)
+        self._sadToken = self._registerSadCallback(self._handleSadToonDuringIntro)
+    def exitIntro(self):
+        self._unregisterSadCallback(self._sadToken)
+        self._sadToken = None
+        self._introBarrier.cleanup()
+        self._introBarrier = None
+
+    def _handleSadToonDuringIntro(self, toonId):
+        # shouldn't be possible unless someone hacks their client or we add some
+        # sort of DOT
+        self._introBarrier.clear(toonId)
+
+    def setAvatarReady(self):
+        senderId = self.air.getAvatarIdFromSender()
+        if senderId not in self.getToonIds():
+            self.air.writeServerEvent('suspicious', senderId, 'CogdoGameAI.setAvatarReady: unknown avatar')
+            return
+        if self._introBarrier:
+            self._introBarrier.clear(senderId)
+
+    def _handleIntroBarrierDone(self, avIds):
+        self.fsm.request('Game')
+
+    def enterGame(self):
+        self.markStartTime()
+        self.sendUpdate('setGameStart', [
+            globalClockDelta.localToNetworkTime(self.getStartTime())])
+    def exitGame(self):
+        pass
+
+    def _handleGameFinished(self):
+        # call this from subclass when Game state is completed
+        self.fsm.request('Finish')
+        
+    def enterFinish(self):
+        self.markFinishTime()
+        self.sendUpdate('setGameFinish', [
+            globalClockDelta.localToNetworkTime(self.getFinishTime())])
+    def exitFinish(self):
+        pass
+
+    def announceGameDone(self):
+        # call this from subclass when Finish state is completed
+        self._interior._gameDone()
