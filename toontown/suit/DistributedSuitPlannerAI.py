@@ -1067,7 +1067,7 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI,
                 newSuit.takeoverIsCogdo = cogdoTakeover
                 if newSuit.takeoverIsCogdo:
                     pendingTracks = [
-                     's', 'l']
+                     's']
                     pendingHeights = self.pendingCogdoHeights
                 else:
                     pendingTracks = self.pendingBuildingTracks
@@ -1091,7 +1091,7 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI,
 
             else:
                 if cogdoTakeover and suitTrack == None:
-                    suitTrack = random.choice(['s', 'l'])
+                    suitTrack = random.choice(ALLOWED_FIELD_OFFICES)
         # If we're constrained to create only a particular type of
         # suit, do so.
         if suitName == None:

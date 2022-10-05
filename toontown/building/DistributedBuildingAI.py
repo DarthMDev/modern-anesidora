@@ -247,8 +247,9 @@ class DistributedBuildingAI(DistributedObjectAI.DistributedObjectAI):
 
         self.track= dept
         self.difficulty=difficulty
-        if self.track == 'l':
-            self.numFloors = self.FieldOfficeNumFloors + 1
+        # Dont need to worry about this since TTO didn't have it 
+        # if self.track == 'l':
+        #   self.numFloors = self.FieldOfficeNumFloors + 1
         self.becameSuitTime = time.time()
         self.fsm.request('clearOutToonInteriorForCogdo')
 

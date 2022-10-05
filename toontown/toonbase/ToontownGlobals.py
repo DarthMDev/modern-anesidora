@@ -1616,5 +1616,5 @@ AnimPropTypes = IntEnum('AnimPropTypes', ("Unknown",
                      )
 
 MaxCarryLimit = 80
-ALLOWED_FIELD_OFFICES = ['s', 'l']
+ALLOWED_FIELD_OFFICES = ['s']
 MAX_NUM_OF_TOONS = 6
