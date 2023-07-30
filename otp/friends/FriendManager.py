@@ -134,7 +134,7 @@ class FriendManager(DistributedObject.DistributedObject):
           3 - the invitee has too many friends already.
         """
         if yesNoMaybe == 1:
-            base.cr.ttFriendsManager.friendIsOnline(self.friend )
+            base.cr.toontownFriendsManager.friendIsOnline(self.friend )
         self.sendUpdate('inviteeFriendResponse', [yesNoMaybe, context])
         self.notify.debug("Client: inviteeFriendResponse(%d, %d)" % (yesNoMaybe, context))
 
@@ -187,7 +187,7 @@ class FriendManager(DistributedObject.DistributedObject):
           3 - the invitee has too many friends already.
         """
         if yesNoMaybe == 1:
-            base.cr.ttFriendsManager.friendIsOnline(self.friend)
+            base.cr.toontownFriendsManager.friendIsOnline(self.friend)
         self.notify.debug("Client: friendResponse(%d, %d)" % (yesNoMaybe, context))
 
         messenger.send('friendResponse', [yesNoMaybe, context])

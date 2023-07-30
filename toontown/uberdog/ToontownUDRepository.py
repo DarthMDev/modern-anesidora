@@ -75,7 +75,7 @@ class ToontownUDRepository(ToontownInternalRepository):
         if hasattr(self, 'setVerbose'):
             if self.config.GetBool('verbose-uberrepository'):
                 self.setVerbose(1)
-        self.ttFriendsManager = None 
+        self.toontownFriendsManager = None 
         
     def handleConnected(self):
         ToontownInternalRepository.handleConnected(self)
@@ -121,7 +121,7 @@ class ToontownUDRepository(ToontownInternalRepository):
         self.dataStoreManager = self.generateGlobalObject(
                 OtpDoGlobals.OTP_DO_ID_TOONTOWN_TEMP_STORE_MANAGER,
                 "DistributedDataStoreManager")
-        self.ttFriendsManager = self.generateGlobalObject(OTP_DO_ID_TT_FRIENDS_MANAGER, 'TTFriendsManager')
+        self.toontownFriendsManager = self.generateGlobalObject(OTP_DO_ID_TT_FRIENDS_MANAGER, 'ToontownFriendsManager')
 
 #TODO get ratmanager and awardmanager working
       #  if self.isRATManager:

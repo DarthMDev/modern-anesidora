@@ -648,7 +648,7 @@ class UnloadAvatarOperation(GameOperation):
 
     def __handleUnloadAvatar(self):
         channel = self.loginManager.GetAccountConnectionChannel(self.sender)
-        self.loginManager.air.ttFriendsManager.goingOffline(self.avId)
+        self.loginManager.air.toontownFriendsManager.goingOffline(self.avId)
         datagram = PyDatagram()
         datagram.addServerHeader(channel, self.loginManager.air.ourChannel, CLIENTAGENT_CLEAR_POST_REMOVES)
         self.loginManager.air.send(datagram)

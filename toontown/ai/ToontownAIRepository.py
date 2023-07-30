@@ -21,6 +21,7 @@ from toontown.coghq.PromotionManagerAI import PromotionManagerAI
 from toontown.distributed.ToontownDistrictAI import ToontownDistrictAI
 from toontown.distributed.ToontownDistrictStatsAI import ToontownDistrictStatsAI
 from toontown.distributed.ToontownInternalRepository import ToontownInternalRepository
+from toontown.friends.ToontownFriendsManagerAI import ToontownFriendsManagerAI
 from toontown.hood import ZoneUtil
 from toontown.hood.BRHoodDataAI import BRHoodDataAI
 from toontown.hood.BossbotHQDataAI import BossbotHQDataAI
@@ -64,7 +65,6 @@ from direct.distributed.PyDatagram import PyDatagram
 from toontown.ai.ToontownAIMsgTypes import *
 from panda3d.toontown import *
 from toontown.fishing import FishManagerAI
-from otp.friends.FriendManagerAI import FriendManagerAI
 class ToontownAIRepository(ToontownInternalRepository):
     notify = DirectNotifyGlobal.directNotify.newCategory('ToontownAIRepository')
 
@@ -105,7 +105,6 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.magicWordManager = None
         self.partyManager = None
         self.codeRedemptionManager = None
-        self.friendManager = None
 
         self.zoneTable = {}
         self.dnaStoreMap = {}
@@ -299,8 +298,9 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.codeRedemptionManager.generateWithRequired(OTP_ZONE_ID_MANAGEMENT)
         
         # Generate our friend manager...
-        self.friendManager = FriendManagerAI(self)
-        self.friendManager.generateWithRequired(OTP_ZONE_ID_MANAGEMENT)
+        self.friendsManager = ToontownFriendsManagerAI(self)
+        self.friendsManager.generateWithRequired(OTP_ZONE_ID_MANAGEMENT)
+
     def generateHood(self, hoodConstructor, zoneId):
         # Bossbot HQ doesn't use DNA, so we skip over that.
         if zoneId != ToontownGlobals.BossbotHQ:

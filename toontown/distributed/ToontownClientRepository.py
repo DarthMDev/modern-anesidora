@@ -180,7 +180,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
             self.codeRedemptionManager = self.generateGlobalObject(
                 OtpDoGlobals.OTP_DO_ID_TOONTOWN_CODE_REDEMPTION_MANAGER,
                 "TTCodeRedemptionMgr")
-        self.ttFriendsManager = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_TT_FRIENDS_MANAGER, 'TTFriendsManager')
+        self.toontownFriendsManager = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_TT_FRIENDS_MANAGER, 'ToontownFriendsManager')
 
         # This one is a little different, because it doesn't live in
         # the Uber zone; a different one lives in the zone for each
@@ -699,9 +699,9 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         #datagram.addUint32(avId)
         #self.send(datagram)
         if pet:
-            self.ttFriendsManager.d_getPetInfo(avId)
+            self.toontownFriendsManager.d_getPetInfo(avId)
         else:
-            self.ttFriendsManager.d_getToonDetails(avId)
+            self.toontownFriendsManager.d_getToonDetails(avId)
 
     def n_handleGetAvatarDetailsResp(self, avId, fields):
         self.notify.info('Query reponse for avId %d' % avId)
@@ -1341,7 +1341,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
                 # Here's our friend entry; remove it.
            #     base.localAvatar.friendsList.remove(pair)
             #    return
-        self.ttFriendsManager.d_deleteFriend(avatarId)
+        self.toontownFriendsManager.d_deleteFriend(avatarId)
 
     def clearFriendState(self):
         """
@@ -1362,7 +1362,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         """
         self.friendsMapPending = 1
         self.friendsListError = 0
-        self.ttFriendsManager.d_requestFriends()
+        self.toontownFriendsManager.d_requestFriends()
 
 
     def cleanPetsFromFriendsMap(self):
@@ -1767,7 +1767,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         if avId == 0:
             self.notify.warning('avId is 0 skipping requestAvatarInfo')
             return 
-        self.ttFriendsManager.d_requestAvatarInfo([avId])
+        self.toontownFriendsManager.d_requestAvatarInfo([avId])
 
         #datagram = PyDatagram()
         # Add message type
@@ -1797,7 +1797,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
             return
         if len(self.avatarInfoRequests) == 0:
             return
-        self.ttFriendsManager.d_requestAvatarInfo(self.avatarInfoRequests)
+        self.toontownFriendsManager.d_requestAvatarInfo(self.avatarInfoRequests)
         #datagram = PyDatagram()
         # Add message type
         #datagram.addUint16(CLIENT_GET_FRIEND_LIST_EXTENDED)

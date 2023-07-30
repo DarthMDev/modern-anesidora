@@ -632,7 +632,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer,
         if base.config.GetBool('want-sleep-reply-on-regular-chat', 0):
             if base.localAvatar.sleepFlag == 1:
                 # I am sleeping so I send an autoreply message
-                base.cr.ttFriendsManager.d_sleepAutoReply(avId)
+                base.cr.toontownFriendsManager.d_sleepAutoReply(avId)
 
         newText,scrubbed = self.scrubTalk(chat, mods)
         self.displayTalk(newText)
@@ -657,7 +657,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer,
         if base.localAvatar.sleepFlag == 1:
             # I am sleeping so I send an autoreply message
             if not base.cr.identifyAvatar(fromAV) == base.localAvatar:
-                base.cr.ttFriendsManager.d_sleepAutoReply(avId)
+                base.cr.toontownFriendsManager.d_sleepAutoReply(avId)
 
         newText, scrubbed = self.scrubTalk(chat, mods)
         self.displayTalkWhisper(fromAV, avatarName, chat, mods)
@@ -692,7 +692,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer,
         if base.localAvatar.sleepFlag == 1:
             # I am sleeping so I send an autoreply message
             if not base.cr.identifyAvatar(fromId) == base.localAvatar:
-                base.cr.ttFriendsManager.d_sleepAutoReply(avId)
+                base.cr.toontownFriendsManager.d_sleepAutoReply(avId)
 
         chatString = SCDecoders.decodeSCEmoteWhisperMsg(emoteId,
                                                         handle.getName())
@@ -725,7 +725,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer,
         if base.localAvatar.sleepFlag == 1:
             # I am sleeping so I send an autoreply message
             if not base.cr.identifyAvatar(fromId) == base.localAvatar:
-                base.cr.ttFriendsManager.d_sleepAutoReply(avId)
+                base.cr.toontownFriendsManager.d_sleepAutoReply(avId)
 
         chatString = SCDecoders.decodeSCStaticTextMsg(msgIndex)
         if chatString:
@@ -741,7 +741,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer,
         toon, prefixed with our own name.
         """
         messenger.send("wakeup")
-        base.cr.ttFriendsManager.d_whisperSCToontaskTo(sendToId,
+        base.cr.toontownFriendsManager.d_whisperSCToontaskTo(sendToId,
                         taskId, toNpcId, toonProgress, msgIndex
                         )
 

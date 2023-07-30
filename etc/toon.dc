@@ -139,7 +139,7 @@ from toontown.estate import DistributedTrunk/AI
 from toontown.estate import DistributedPhone/AI
 from toontown.effects import DistributedFireworkShow/AI
 from toontown.estate import DistributedFireworksCannon/AI
-from toontown.friends import TTFriendsManager/UD
+from toontown.friends import ToontownFriendsManager/AI/UD
 from toontown.coghq import LobbyManager/AI
 from otp.level import DistributedLevel/AI
 from otp.level import DistributedEntity/AI
@@ -3845,7 +3845,7 @@ struct Friends
   uint32 petId;
 };
 
-dclass TTFriendsManager: DistributedObject {
+dclass ToontownFriendsManager: DistributedObject {
   deleteFriend(uint32) clsend;
 
   requestFriends() clsend;

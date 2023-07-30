@@ -195,7 +195,7 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar,
          #   base.cr.playerFriendsManager.sendSCWhisper(sendToId, msgIndex)
         if not toPlayer:
             messenger.send("wakeup")
-            base.cr.ttFriendsManager.whisperScTo(sendToId, msgIndex)
+            base.cr.toontownFriendsManager.whisperScTo(sendToId, msgIndex)
 
     def setWhisperSCFrom(self, fromId, msgIndex):
         """
@@ -232,7 +232,7 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar,
          #   return
     
         messenger.send("wakeup")
-        base.cr.ttFriendsManager.d_whisperSCCustomTo(sendToId, msgIndex
+        base.cr.toontownFriendsManager.d_whisperSCCustomTo(sendToId, msgIndex
                         )
 
     def _isValidWhisperSource(self, source):
@@ -278,7 +278,7 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar,
          #   base.cr.playerFriendsManager.sendSCEmoteWhisper(sendToId, emoteId)
           #  return
         messenger.send("wakeup")
-        base.cr.ttFriendsManager.d_whisperSCEmoteTo(sendToId, emoteId
+        base.cr.toontownFriendsManager.d_whisperSCEmoteTo(sendToId, emoteId
                         )
 
     def setWhisperSCEmoteFrom(self, fromId, emoteId):
@@ -505,7 +505,7 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar,
 
     def d_teleportQuery(self, requesterId, sendToId = None):
         #print("sending teleportQuery %s %s" % (requesterId, sendToId))
-        base.cr.ttFriendsManager.d_teleportQuery(sendToId)
+        base.cr.toontownFriendsManager.d_teleportQuery(sendToId)
 
     def teleportQuery(self, requesterId):
         """teleportQuery(self, int requesterId)
@@ -594,7 +594,7 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar,
 
     def d_teleportResponse(self, avId, available, shardId, hoodId, zoneId,
                            sendToId = None):
-        base.cr.ttFriendsManager.d_teleportResponse(avId, available, shardId, hoodId, zoneId, sendToId)
+        base.cr.toontownFriendsManager.d_teleportResponse(avId, available, shardId, hoodId, zoneId, sendToId)
 
     def teleportResponse(self, avId, available, shardId, hoodId, zoneId):
         messenger.send('teleportResponse', [avId, available, shardId, hoodId, zoneId])
@@ -602,7 +602,7 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar,
     ### teleportGiveup ###
 
     def d_teleportGiveup(self, requesterId, sendToId = None):
-        base.cr.ttFriendsManager.d_teleportGiveup(sendToId)
+        base.cr.toontownFriendsManager.d_teleportGiveup(sendToId)
 
     def teleportGiveup(self, requesterId):
         """teleportGiveup(self, int requesterId)

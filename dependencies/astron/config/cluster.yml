@@ -24,7 +24,7 @@ uberdogs:
       id: 4687
       anonymous: false
       
-    - class: TTFriendsManager
+    - class: ToontownFriendsManager
       id: 4699
       anonymous: false
 

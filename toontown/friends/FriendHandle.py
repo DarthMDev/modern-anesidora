@@ -55,19 +55,19 @@ class FriendHandle:
         return (idString + "-" + str(self.getDoId()))
 
     def d_battleSOS(self, requesterId):
-        base.cr.ttFriendsManager.d_battleSOS(self.getDoId())
+        base.cr.toontownFriendsManager.d_battleSOS(self.getDoId())
 
     def d_teleportQuery(self, requesterId):
-        base.cr.ttFriendsManager.d_teleportQuery(self.getDoId())
+        base.cr.toontownFriendsManager.d_teleportQuery(self.getDoId())
 
 
     def d_teleportResponse(self, avId, available, shardId, hoodId, zoneId):
-        base.cr.ttFriendsManager.d_teleportResponse(
+        base.cr.toontownFriendsManager.d_teleportResponse(
                                       avId, available, shardId, hoodId, zoneId
                                       )
 
     def d_teleportGiveup(self, requesterId):
-        base.cr.ttFriendsManager.d_teleportGiveup(self.getDoId())
+        base.cr.toontownFriendsManager.d_teleportGiveup(self.getDoId())
 
 
     def isUnderstandable(self):
